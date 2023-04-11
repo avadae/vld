@@ -41,8 +41,8 @@ IF %ERRORLEVEL% NEQ 0 GOTO EndBad
 devenv /nologo vld_vs14.sln %BUILDTYPE% "Release|x64" /Project vld
 IF %ERRORLEVEL% NEQ 0 GOTO EndBad
 
-if not exist "%ProgFiles%\Inno Setup 5\ISCC.exe" GOTO EndBad
-"%ProgFiles%\Inno Setup 5\ISCC.exe" setup\vld-setup.iss
+if not exist "%ProgFiles%\Inno Setup 6\ISCC.exe" GOTO EndBad
+"%ProgFiles%\Inno Setup 6\ISCC.exe" setup\vld-setup.iss
 IF %ERRORLEVEL% NEQ 0 GOTO EndBad
 CD setup
 
