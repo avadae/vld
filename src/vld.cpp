@@ -343,6 +343,7 @@ VisualLeakDetector::VisualLeakDetector ()
 
     // Initialize configuration options and related private data.
     _wcsnset_s(m_forcedModuleList, MAXMODULELISTLENGTH, '\0', _TRUNCATE);
+
     m_maxDataDump    = 0xffffffff;
     m_maxTraceFrames = 0xffffffff;
     m_options        = 0x0;
@@ -426,6 +427,7 @@ VisualLeakDetector::VisualLeakDetector ()
     m_tlsIndex        = TlsAlloc();
     m_tlsLock.Initialize();
     m_tlsMap          = new TlsMap;
+    m_ignoreFunctions = new IgnoreFunctionsSet();
 
     if (m_options & VLD_OPT_SELF_TEST) {
         // Self-test mode has been enabled. Intentionally leak a small amount of
@@ -452,12 +454,23 @@ VisualLeakDetector::VisualLeakDetector ()
         // debugger gets lost if it's sent too fast).
         InsertReportDelay();
     }
+    if (m_options & VLD_OPT_IGNORE_FUNCTIONS) {
+        // Delimit each function name with "," and insert these into IgnoreFunctionsSet.
+        LPCWSTR pwc;
+        wchar_t* buffer;
+        pwc = wcstok_s(m_ignoreFunctionsList, L",", &buffer);
+        while (pwc != NULL) {
+            functioninfo_t funtioninfo = { pwc };
+            m_ignoreFunctions->insert(funtioninfo);
+            pwc = wcstok_s(NULL, L",", &buffer);
+        }
+    }
 
     // This is highly unlikely to happen, but just in case, check to be sure
     // we got a valid TLS index.
     if (m_tlsIndex == TLS_OUT_OF_INDEXES) {
         Report(L"ERROR: Visual Leak Detector could not be installed because thread local"
-            L"  storage could not be allocated.");
+            L"  storage could not be allocated.\n");
         return;
     }
 
@@ -673,6 +686,7 @@ VisualLeakDetector::~VisualLeakDetector ()
             delete m_heapMap;
         }
         delete m_loadedModules;
+        delete m_ignoreFunctions;
 
         {
             // Free internally allocated resources used for thread local storage.
@@ -1160,6 +1174,13 @@ VOID VisualLeakDetector::configure ()
         m_forcedModuleList[0] = '\0';
     else
         m_options |= VLD_OPT_MODULE_LIST_INCLUDE;
+
+    // Read the ignore function list.
+    LoadStringOption(L"IgnoreFunctionsList", m_ignoreFunctionsList, MAXIGNOREFUNCTIONLISTLENGTH, inipath);
+    if (wcscmp(m_ignoreFunctionsList, L"") == 0)
+        m_ignoreFunctionsList[0] = '\0';
+    else
+        m_options |= VLD_OPT_IGNORE_FUNCTIONS;
 
     // Read the report destination (debugger, file, or both).
     WCHAR filename [MAX_PATH] = {0};
@@ -1676,6 +1697,9 @@ VOID VisualLeakDetector::reportConfig ()
     }
     if (m_options & VLD_OPT_TRACE_INTERNAL_FRAMES) {
         Report(L"    Including heap and VLD internal frames in stack traces.\n");
+    }
+    if (m_options & VLD_OPT_IGNORE_FUNCTIONS) {
+        Report(L"    Ignorning these functions from leak detection: %s\n", m_ignoreFunctionsList);
     }
 }
 
@@ -2354,6 +2378,13 @@ bool VisualLeakDetector::isModuleExcluded(UINT_PTR address)
     return false;
 }
 
+
+bool VisualLeakDetector::isFunctionIgnored(LPCWSTR functionName)
+{
+    functioninfo_t functioninfo = { functionName };
+    return g_vld.m_ignoreFunctions->find(functioninfo) != g_vld.m_ignoreFunctions->end();
+}
+
 SIZE_T VisualLeakDetector::GetLeaksCount()
 {
     if (m_options & VLD_OPT_VLDOFF) {
@@ -2605,7 +2636,7 @@ void VisualLeakDetector::GlobalEnableLeakDetection ()
 CONST UINT32 OptionsMask = VLD_OPT_AGGREGATE_DUPLICATES | VLD_OPT_MODULE_LIST_INCLUDE |
     VLD_OPT_SAFE_STACK_WALK | VLD_OPT_SLOW_DEBUGGER_DUMP | VLD_OPT_START_DISABLED |
     VLD_OPT_TRACE_INTERNAL_FRAMES | VLD_OPT_SKIP_HEAPFREE_LEAKS | VLD_OPT_VALIDATE_HEAPFREE |
-    VLD_OPT_SKIP_CRTSTARTUP_LEAKS;
+    VLD_OPT_SKIP_CRTSTARTUP_LEAKS | VLD_OPT_IGNORE_FUNCTIONS;
 
 UINT32 VisualLeakDetector::GetOptions()
 {
