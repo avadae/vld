@@ -16,10 +16,6 @@ permissions:
 jobs:
  build:
     runs-on: windows-latest
-    strategy:
-      matrix:
-        BUILD_CONFIGURATION: [Release]
-        BUILD_PLATFORM: [x64, Win32]
     steps:
     - uses: actions/checkout@v4
 
@@ -30,11 +26,13 @@ jobs:
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: nuget restore ${{env.SOLUTION_FILE_PATH}}
 
-    - name: Build
+    - name: Build Win32
       working-directory: ${{env.GITHUB_WORKSPACE}}
-      # Add additional options to the MSBuild command line here (like platform or verbosity level).
-      # See https://docs.microsoft.com/visualstudio/msbuild/msbuild-command-line-reference
-      run: msbuild /m /p:Configuration=${{matrix.BUILD_CONFIGURATION}} /p:Platform=${{matrix.BUILD_PLATFORM}} -target:vld ${{env.SOLUTION_FILE_PATH}}
+      run: msbuild /m /p:Configuration=Release /p:Platform=Win32 -target:vld ${{env.SOLUTION_FILE_PATH}}
+
+    - name: Build Win64
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: msbuild /m /p:Configuration=Release /p:Platform=x64 -target:vld ${{env.SOLUTION_FILE_PATH}}
 
     - name: Compile .ISS to .EXE Installer
       uses: Minionguyjpro/Inno-Setup-Action@v1.2.4
