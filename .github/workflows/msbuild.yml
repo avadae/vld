@@ -27,6 +27,9 @@ jobs:
       with:
         versionSpec: '6.x'
 
+    - name: Determine Version
+      uses: gittools/actions/gitversion/execute@v3.0.2
+
     - name: Add MSBuild to PATH
       uses: microsoft/setup-msbuild@v2
 
