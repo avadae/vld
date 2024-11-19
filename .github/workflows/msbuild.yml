@@ -54,5 +54,5 @@ jobs:
     - uses: actions/upload-artifact@v4
       with:
         name: Installer
-        path: ./Output/vld-${{ env.GitVersion_MajorMinorPatch }}-setup.exe
+        path: ./setup/Output/vld-${{ env.GitVersion_MajorMinorPatch }}-setup.exe
         retention-days: 1
