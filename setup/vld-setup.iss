@@ -6,7 +6,6 @@
 #endif
 
 #define MyAppName "Visual Leak Detector"
-#define MyAppVersion "2.5.9"
 #define MyAppPublisher "VLD Team"
 #define MyAppURL "http://vld.codeplex.com/"
 #define MyAppRegKey "Software\Visual Leak Detector"
