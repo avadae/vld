@@ -41,3 +41,7 @@ jobs:
     - name: Build Win64
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: msbuild /m /p:Configuration=Release /p:Platform=x64 -target:vld ${{env.SOLUTION_FILE_PATH}}
+
+    - name: Run x64 Tests
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: ./bin/tests/x64/Debug/basics.exe
