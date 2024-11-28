@@ -12,7 +12,6 @@ std::wstring ExePath() {
     std::wstring::size_type pos = std::wstring(buffer).find_last_of(L"\\/");
     return std::wstring(buffer).substr(0, pos);
 }
-
 TEST(TestWinMain, RunExe)
 {
     dir = ExePath();
