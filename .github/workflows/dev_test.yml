@@ -42,4 +42,4 @@ jobs:
 
     - name: Run x64 Tests
       working-directory: ${{env.GITHUB_WORKSPACE}}
-      run: .\bin\tests\x64\Debug(Release)\basics.exe
+      run: .\bin\tests\x64\"Debug(Release)"\basics.exe
