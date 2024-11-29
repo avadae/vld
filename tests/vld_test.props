@@ -17,7 +17,7 @@
       <AdditionalLibraryDirectories>$(SolutionDir)bin\$(Platform)\$(VldConfiguration)\</AdditionalLibraryDirectories>
     </Link>
     <PreBuildEvent>
-      <Command>call ..\copydlls.bat "$(Platform)\$(VldConfiguration)" "$(PlatformTarget)" "$(Outdir)"</Command>
+      <Command>call ..\copydlls.bat $(Platform)\$(VldConfiguration) $(PlatformTarget) "$(Outdir)"</Command>
       <Message>Copying over Visual Leak Detector Dependencies</Message>
     </PreBuildEvent>
   </ItemDefinitionGroup>
