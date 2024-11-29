@@ -7,11 +7,6 @@ env:
   # Path to the solution file relative to the root of the project.
   SOLUTION_FILE_PATH: ./vld.sln
 
-  # Configuration type to build.
-  # You can convert this to a build matrix if you need coverage of multiple configuration types.
-  # https://docs.github.com/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
-  BUILD_CONFIGURATION: Debug
-
 permissions:
   contents: read
 
@@ -29,11 +24,19 @@ jobs:
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: nuget restore ${{env.SOLUTION_FILE_PATH}}
 
-    - name: Build Win32
+    - name: Build VLD Win32
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: msbuild /m /p:Configuration="Release" /p:Platform=Win32 -target:vld ${{env.SOLUTION_FILE_PATH}}
+
+    - name: Build Tests Win32
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: msbuild /m /p:Configuration="Debug(Release)" /p:Platform=Win32 ${{env.SOLUTION_FILE_PATH}}
 
-    - name: Build Win64
+    - name: Build VLD Win64
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: msbuild /m /p:Configuration="Release" /p:Platform=x64 -target:vld ${{env.SOLUTION_FILE_PATH}}
+
+    - name: Build VLD Win64
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: msbuild /m /p:Configuration="Debug(Release)" /p:Platform=x64 ${{env.SOLUTION_FILE_PATH}}
 
