@@ -36,11 +36,11 @@ jobs:
 
     - name: Build Win32
       working-directory: ${{env.GITHUB_WORKSPACE}}
-      run: msbuild /m /p:Configuration=Release /p:Platform=Win32 -target:vld ${{env.SOLUTION_FILE_PATH}}
+      run: msbuild /m /p:Configuration=Release /p:Platform=Win32 ${{env.SOLUTION_FILE_PATH}}
 
     - name: Build Win64
       working-directory: ${{env.GITHUB_WORKSPACE}}
-      run: msbuild /m /p:Configuration=Release /p:Platform=x64 -target:vld ${{env.SOLUTION_FILE_PATH}}
+      run: msbuild /m /p:Configuration=Release /p:Platform=x64 ${{env.SOLUTION_FILE_PATH}}
 
     - name: Run x64 Tests
       working-directory: ${{env.GITHUB_WORKSPACE}}
