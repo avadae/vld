@@ -1,6 +1,5 @@
 #include <vld.h>
 #include "CppUnitTest.h"
-#include "Allocs.h"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
@@ -23,7 +22,7 @@ void access_strings()
 
 namespace msstaticstring
 {
-	TEST_CLASS(msstaticstring)
+	TEST_CLASS(static_string)
 	{
 	public:
 
@@ -42,17 +41,6 @@ namespace msstaticstring
             leaks = static_cast<int>(VLDGetLeaksCount());
             Assert::AreEqual(0, leaks);
 		}
-
-        //TEST_METHOD(TestMalloc)
-        //{
-        //    bool bFreeMemory = true; // todo: this used to be a parameter
-        //    int prev = static_cast<int>(VLDGetLeaksCount());
-        //    LeakMemoryMalloc(repeats, bFreeMemory);
-        //    int total = static_cast<int>(VLDGetLeaksCount());
-        //    int leaks = total - prev;
-        //    int correctLeaks = bFreeMemory ? 0 : repeats * 2;
-        //    Assert::AreEqual(correctLeaks, leaks);
-        //}
 
         TEST_METHOD_CLEANUP(TearDown)
         {

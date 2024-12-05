@@ -139,6 +139,7 @@ namespace vldunload
 		{
             Assert::AreEqual(NULL, (int)GetModuleHandle(sVld_dll));
             HMODULE hModule1 = ::LoadLibrary(_T("vld_dll1.dll"));
+            Assert::AreNotEqual(NULL, (int)hModule1);
             int w = VLDGetLeaksCount(); // vld is loaded and counts 1 memory leak
             ExpectLeakCount(1, w);
             ::FreeLibrary(hModule1);    // vld is unloaded here and reports the memory leak
@@ -146,6 +147,7 @@ namespace vldunload
             ExpectLeakCount(-1, x);
         
             HMODULE hModule2 = ::LoadLibrary(_T("vld_dll2.dll"));
+            Assert::AreNotEqual(NULL, (int)hModule2);
             int y = VLDGetLeaksCount(); // vld is loaded and counts 1 memory leak
             ExpectLeakCount(1, y);
             ::FreeLibrary(hModule2);    // vld is unloaded here and reports the memory leak
