@@ -24,22 +24,12 @@ jobs:
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: nuget restore ${{env.SOLUTION_FILE_PATH}}
 
-    - name: Build VLD Win32
-      working-directory: ${{env.GITHUB_WORKSPACE}}
-      run: msbuild /m /p:Configuration="Release" /p:Platform=Win32 -target:vld ${{env.SOLUTION_FILE_PATH}}
-
-    - name: Build Tests Win32
-      working-directory: ${{env.GITHUB_WORKSPACE}}
-      run: msbuild /m /p:Configuration="Debug(Release)" /p:Platform=Win32 ${{env.SOLUTION_FILE_PATH}}
-
-    - name: Build VLD Win64
-      working-directory: ${{env.GITHUB_WORKSPACE}}
-      run: msbuild /m /p:Configuration="Release" /p:Platform=x64 -target:vld ${{env.SOLUTION_FILE_PATH}}
-
     - name: Build VLD Win64
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: msbuild /m /p:Configuration="Debug(Release)" /p:Platform=x64 ${{env.SOLUTION_FILE_PATH}}
 
-    - name: Run x64 Tests
-      working-directory: ${{env.GITHUB_WORKSPACE}}
-      run: .\bin\tests\x64\"Debug(Release)"\basics.exe
+    - name: Run tests
+      uses: microsoft-approved-actions/vstest@master
+      with:
+        testAssembly: ms_static_string*.dll
+        searchFolder: './bin/tests/x64/debug(release)/'
