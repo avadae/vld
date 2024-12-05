@@ -29,7 +29,7 @@ jobs:
       run: msbuild /m /p:Configuration="Debug(Release)" /p:Platform=x64 ${{env.SOLUTION_FILE_PATH}}
 
     - name: Run tests
-      uses: microsoft-approved-actions/vstest@master
+      uses: microsoft/vstest-action@v1.0.0
       with:
         testAssembly: ms_static_string*.dll
         searchFolder: './bin/tests/x64/debug(release)/'
