@@ -154,5 +154,69 @@ namespace vldunload
             int z = VLDGetLeaksCount(); // vld is unloaded and cannot count any memory leaks
             ExpectLeakCount(-1, z);
         }
+
+        TEST_METHOD(TestUnloadDlls2)
+        {
+            Assert::AreEqual(NULL, (int)GetModuleHandle(sVld_dll));
+            HMODULE hModule3 = ::LoadLibrary(_T("vld_dll1.dll"));
+            int w = VLDGetLeaksCount(); // vld is loaded and counts 1 memory leak
+            ExpectLeakCount(1, w);
+            HMODULE hModule4 = ::LoadLibrary(_T("vld_dll2.dll"));
+            int x = VLDGetLeaksCount(); // vld is still loaded and counts 2 memory leaks
+            ExpectLeakCount(2, x);
+            ::FreeLibrary(hModule4);    // vld is *not* unloaded here
+            int y = VLDGetLeaksCount();
+            ExpectLeakCount(2, y); // vld is still loaded and counts 2 memory leaks
+            ::FreeLibrary(hModule3);    // vld is unloaded here and reports 2 memory leaks
+            int z = VLDGetLeaksCount(); // vld is unloaded and cannot count any memory leaks
+            ExpectLeakCount(-1, z);
+        }
+
+        // todo: something goes wrong here thread related, hangs on freeing module 6
+        //TEST_METHOD(TestUnloadDlls3)
+        //{
+        //    Assert::AreEqual(NULL, (int)GetModuleHandle(sVld_dll));
+        //    HMODULE hModule5 = ::LoadLibrary(_T("vld_dll1.dll"));
+        //    int w = VLDGetLeaksCount(); // vld is loaded and counts 1 memory leak
+        //    ExpectLeakCount(1, w);
+        //    HMODULE hModule6 = ::LoadLibrary(_T("vld_dll2.dll"));
+        //    int x = VLDGetLeaksCount(); // vld is still loaded and counts 2 memory leaks
+        //    ExpectLeakCount(2, x);
+        //    ::FreeLibrary(hModule5);    // vld is *not* unloaded here
+        //    int y = VLDGetLeaksCount(); // vld is still loaded and counts 2 memory leaks
+        //    ExpectLeakCount(2, y); // vld is still loaded and counts 2 memory leaks
+        //    ::FreeLibrary(hModule6);    // vld is unloaded here and reports 2 memory leaks
+        //    int z = VLDGetLeaksCount(); // vld is unloaded and cannot count any memory leaks
+        //    ExpectLeakCount(-1, z);
+        //}
+
+        TEST_METHOD(TestUnloadDlls4)
+        {
+            Assert::AreEqual(NULL, (int)GetModuleHandle(sVld_dll));
+            typedef FARPROC(__stdcall* GetProcAddress_t) (HMODULE, LPCSTR);
+        
+            HMODULE kernel32 = GetModuleHandleW(L"KernelBase.dll");
+            if (!kernel32) {
+                kernel32 = GetModuleHandleW(L"kernel32.dll");
+            }
+        
+            // pGetProcAddress1 resolves to kernel32!GetProcAddress()
+            GetProcAddress_t pGetProcAddress1 = GetProcAddress;
+        
+            HMODULE hModule7 = ::LoadLibrary(_T("vld_dll1.dll"));
+            int w = VLDGetLeaksCount(); // vld is loaded and counts 1 memory leak
+            ExpectLeakCount(1, w);
+            // pGetProcAddress2 resolves to vld_xXX.dll!VisualLeakDetector::_GetProcAddress()
+            GetProcAddress_t pGetProcAddress2 = GetProcAddress;
+        
+            ::FreeLibrary(hModule7);    // vld is unloaded here and reports the memory leak
+            int x = VLDGetLeaksCount(); // vld is unloaded and cannot count any memory leaks
+            ExpectLeakCount(-1, x);
+            //assert(pGetProcAddress1 == pGetProcAddress2);
+            //GetProcAddress_t pGetProcAddress3 = (GetProcAddress_t)pGetProcAddress1(kernel32, "GetProcAddress");
+        
+            // Following line raises 0xC0000005: Access violation exception
+            //GetProcAddress_t pGetProcAddress4 = (GetProcAddress_t)pGetProcAddress2(kernel32, "GetProcAddress");
+        }
     };
 }
