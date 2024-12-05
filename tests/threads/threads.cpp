@@ -1,39 +1,13 @@
-////////////////////////////////////////////////////////////////////////////////
-//
-//  Visual Leak Detector - Test Suite
-//  Copyright (c) 2005-2014 VLD Team
-//
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License, or (at your option) any later version.
-//
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
-//
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-//
-//  See COPYING.txt for the full terms of the GNU Lesser General Public License.
-//
-////////////////////////////////////////////////////////////////////////////////
+#include "CppUnitTest.h"
 
-////////////////////////////////////////////////////////////////////////////////
-//
-//  Test suite for Visual Leak Detector
-//
-////////////////////////////////////////////////////////////////////////////////
-
-#include "pch.h"
 #include <cassert>
 #include <cstdio>
 #include <windows.h>
 #include <tchar.h>
 #include <process.h>
 #include <vld.h>
+
+using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
 enum action_e {
     a_calloc,
@@ -160,7 +134,7 @@ VOID allocateblock(action_e action, SIZE_T size)
     HMODULE  crt;
     ULONG    index;
     ULONG    index2;
-    LPCSTR   name;
+    LPCSTR   name = "";
     PVOID* pblock;
     HRESULT  status;
 
@@ -467,14 +441,24 @@ void RunTestSuite()
     delete[] threads;
 }
 
-TEST(TestSuit, MultiThread)
+namespace threads
 {
-    leaks_count = 0;
+	TEST_CLASS(threads)
+	{
+	public:
+		
+		TEST_METHOD(TestThreads)
+		{
+            leaks_count = 0;
 
-    VLDMarkAllLeaksAsReported();
-    RunTestSuite();
-    int leaks = static_cast<int>(VLDGetLeaksCount());
-    if (leaks_count != leaks)
-        VLDReportLeaks();
-    ASSERT_EQ(leaks_count, leaks);
+            VLDMarkAllLeaksAsReported();
+            RunTestSuite();
+            int leaks = static_cast<int>(VLDGetLeaksCount());
+            if (leaks_count != leaks)
+                VLDReportLeaks();
+            Assert::AreEqual(static_cast<int>(leaks_count), leaks);
+		}
+	};
 }
+
+

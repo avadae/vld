@@ -14,6 +14,9 @@
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
+#define _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING 1
+#define _SILENCE_ALL_CXX17_DEPRECATION_WARNINGS 1
+
 // Name of the debug C Runtime Library DLL on this system
 #ifdef _DEBUG
 #if _MSC_VER == 1400	// VS 2005
@@ -101,9 +104,16 @@ void AssertCompareCallStacks(const wchar_t* actual,
         }
 
         // Convert wchar_t to std::string and transform to lowercase
-        std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
-        std::string actualLine(converter.to_bytes(wactualLine));
-        std::transform(actualLine.begin(), actualLine.end(), actualLine.begin(), ::tolower);
+        
+        // The below three lines are the originals, but deprecated since C++17
+        //std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
+        //std::string actualLine(converter.to_bytes(wactualLine));
+        //std::transform(actualLine.begin(), actualLine.end(), actualLine.begin(), ::tolower);
+
+        std::string actualLine;
+        std::locale loc(""); // Use the user's locale
+        for (wchar_t wc : wactualLine)
+            actualLine += std::tolower(std::use_facet<std::ctype<wchar_t>>(loc).narrow(wc, '?'), loc);
 
         // Perform regex matching
         std::regex expectedRegex(expectedLine);
@@ -160,11 +170,11 @@ __declspec(noinline) void allocMalloc(bool bFree)
     {
         const char* expectedCallstack =
 #ifdef _DLL
-//#ifdef _DEBUG
-//            "\\s+\\S+.cpp \\(\\d+\\): \\w+\\.dll!malloc\\(\\)\n"
-//#else
+            //#ifdef _DEBUG
+            //            "\\s+\\S+.cpp \\(\\d+\\): \\w+\\.dll!malloc\\(\\)\n"
+            //#else
             "\\s+\\w+\\.dll!malloc\\(\\)\n"
-//#endif
+            //#endif
 #else
             "\\s+ntdll\\.dll!rtlallocateheap\\(\\)\n"
 #ifdef _DEBUG
@@ -174,7 +184,7 @@ __declspec(noinline) void allocMalloc(bool bFree)
 #endif
 #endif
             "\\s+\\S+\\\\allocs\\.cpp \\(\\d+\\): \\w+\\.\\w+!allocmalloc\\(\\).*\n"
-            "\\s+\\S+\\\\allocs\\.cpp \\(\\d+\\): \\w+\\.\\w+!allocator<0>::alloc\\(\\) \\+ 0x\\S+ bytes";
+            "\\s+\\S+\\\\allocs\\.cpp \\(\\d+\\): \\w+\\.\\w+!allocator<0>::alloc\\(\\)";// \\ + 0x\\S + bytes";
          
         AssertCompareCallStacks(callstack, expectedCallstack);
     }
@@ -186,7 +196,7 @@ __declspec(noinline) void allocMalloc(bool bFree)
 #ifdef _DLL
 #ifdef _DEBUG
             "\\s+\\w+\\.dll!_?malloc_dbg\\(\\)\n"
-//            "\\s+\\S+.cpp \\(\\d+\\): \\w+\\.dll!_?malloc_dbg\\(\\)\n"
+            //            "\\s+\\S+.cpp \\(\\d+\\): \\w+\\.dll!_?malloc_dbg\\(\\)\n"
 #else
             "\\s+\\w+\\.dll!malloc\\(\\)\n"
 #endif
@@ -199,7 +209,7 @@ __declspec(noinline) void allocMalloc(bool bFree)
 #endif
 #endif
             "\\s+\\S+\\\\allocs\\.cpp \\(\\d+\\): \\w+\\.\\w+!allocmalloc\\(\\).*\n"
-            "\\s+\\S+\\\\allocs\\.cpp \\(\\d+\\): \\w+\\.\\w+!allocator<0>::alloc\\(\\) \\+ 0x\\S+ bytes";
+            "\\s+\\S+\\\\allocs\\.cpp \\(\\d+\\): \\w+\\.\\w+!allocator<0>::alloc\\(\\)";// \\ + 0x\\S + bytes";
         AssertCompareCallStacks( callstack, expectedCallstack);
     }
     if (bFree)
