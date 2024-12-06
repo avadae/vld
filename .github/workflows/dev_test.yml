@@ -24,8 +24,8 @@ jobs:
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: nuget restore ${{env.SOLUTION_FILE_PATH}}
 
-    - name: Setup VSTest.exe
-      uses: Malcolmnixon/Setup-VSTest@v4
+    #- name: Setup VSTest.exe
+    #  uses: Malcolmnixon/Setup-VSTest@v4
 
     - name: Build VLD Win64
       working-directory: ${{env.GITHUB_WORKSPACE}}
@@ -36,4 +36,4 @@ jobs:
       run: msbuild /m /p:Configuration="Debug(Release)" /p:Platform=x64 ${{env.SOLUTION_FILE_PATH}}
 
     - name: Test
-      run: vstest.console '.\bin\tests\x64\debug\ms_static_string.dll' /InIsolation
+      run: vstest.console '.\bin\tests\x64\debug(release)\ms_static_string.dll' /InIsolation
