@@ -40,4 +40,19 @@ jobs:
         vstest.console '.\bin\tests\x64\debug(release)\ms_static_string.dll' /InIsolation
         vstest.console '.\bin\tests\x64\debug(release)\threads.dll' /InIsolation
         vstest.console '.\bin\tests\x64\debug(release)\vld_unload.dll' /InIsolation
+
+    - name: Build Win32 VLD
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: msbuild /m /p:Configuration="Release" /p:Platform=Win32 -target:vld ${{env.SOLUTION_FILE_PATH}}
+
+    - name: Build Win32 Tests
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: msbuild /m /p:Configuration="Debug(Release)" /p:Platform=Win32 ${{env.SOLUTION_FILE_PATH}}
+
+    - name: Test Win32
+      run: |
+        vstest.console '.\bin\tests\win32\debug(release)\ms_static_string.dll' /InIsolation
+        vstest.console '.\bin\tests\win32\debug(release)\threads.dll' /InIsolation
+        vstest.console '.\bin\tests\win32\debug(release)\vld_unload.dll' /InIsolation
+        
         
