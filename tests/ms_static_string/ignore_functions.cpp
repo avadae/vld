@@ -46,54 +46,54 @@ namespace msstaticstring
             VLDMarkAllLeaksAsReported();
         }
 
-        //TEST_METHOD(TestIgnoreFunctionsSuccess)
-        //{
-        //    int leaks = static_cast<int>(VLDGetLeaksCount());
-        //    Assert::AreEqual(0, leaks);
+        TEST_METHOD(TestIgnoreFunctionsSuccess)
+        {
+            int leaks = static_cast<int>(VLDGetLeaksCount());
+            Assert::AreEqual(0, leaks);
 
-        //    // All of these strings should be ignored.
-        //    static std::string const osVer = GetOSVersion();
-        //    static std::string const someOtherString = SomeOtherString();
-        //    static std::string const str3 = abcdefg();
-        //    static std::string const str4 = testOtherString();
+            // All of these strings should be ignored.
+            static std::string const osVer = GetOSVersion();
+            static std::string const someOtherString = SomeOtherString();
+            static std::string const str3 = abcdefg();
+            static std::string const str4 = testOtherString();
 
-        //    leaks = static_cast<int>(VLDGetLeaksCount());
-        //    Assert::AreEqual(0, leaks);
-        //}
+            leaks = static_cast<int>(VLDGetLeaksCount());
+            Assert::AreEqual(0, leaks);
+        }
 
-        //TEST_METHOD(TestIgnoreFunctionsReportsNonListedLeaks)
-        //{
-        //    int leaks = static_cast<int>(VLDGetLeaksCount());
-        //    Assert::AreEqual(0, leaks);
+        TEST_METHOD(TestIgnoreFunctionsReportsNonListedLeaks)
+        {
+            int leaks = static_cast<int>(VLDGetLeaksCount());
+            Assert::AreEqual(0, leaks);
 
-        //    // All of these strings should be ignored.
-        //    static std::string const osVer = GetOSVersion();
-        //    static std::string const someOtherString = SomeOtherString();
-        //    static std::string const str3 = abcdefg();
+            // All of these strings should be ignored.
+            static std::string const osVer = GetOSVersion();
+            static std::string const someOtherString = SomeOtherString();
+            static std::string const str3 = abcdefg();
 
-        //    //This should be detected as leak
-        //    static std::string const str4 = NotInTheList();
+            //This should be detected as leak
+            static std::string const str4 = NotInTheList();
 
-        //    leaks = static_cast<int>(VLDGetLeaksCount());
-        //    Assert::AreEqual(1, leaks);
-        //}
+            leaks = static_cast<int>(VLDGetLeaksCount());
+            Assert::AreEqual(1, leaks);
+        }
 
-        //TEST_METHOD(TestIgnoreFunctionsReportsStaticStringLeaks)
-        //{
-        //    int leaks = static_cast<int>(VLDGetLeaksCount());
-        //    Assert::AreEqual(0, leaks);
+        TEST_METHOD(TestIgnoreFunctionsReportsStaticStringLeaks)
+        {
+            int leaks = static_cast<int>(VLDGetLeaksCount());
+            Assert::AreEqual(0, leaks);
 
-        //    // All of these strings should be ignored.
-        //    static std::string const someOtherString = SomeOtherString();
-        //    static std::string const str3 = abcdefg();
+            // All of these strings should be ignored.
+            static std::string const someOtherString = SomeOtherString();
+            static std::string const str3 = abcdefg();
 
-        //    //This should be detected as leak
-        //    static std::string const osVer = "LeakString";
-        //    static std::string const str4 = NotInTheList();
+            //This should be detected as leak
+            static std::string const osVer = "LeakString";
+            static std::string const str4 = NotInTheList();
 
-        //    leaks = static_cast<int>(VLDGetLeaksCount());
-        //    Assert::AreEqual(2, leaks);
-        //}
+            leaks = static_cast<int>(VLDGetLeaksCount());
+            Assert::AreEqual(2, leaks);
+        }
 
 
         TEST_METHOD_CLEANUP(TearDown)
