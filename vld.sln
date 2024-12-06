@@ -24,10 +24,6 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "vld_tests", "tests\vld_tests\vld_tests.vcxproj", "{C10696B5-E80B-4CE7-8BDF-2C7EC38B4649}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "vld_unload", "tests\vld_unload\vld_unload.vcxproj", "{4133697F-1589-4567-9080-19774034DAF9}"
-	ProjectSection(ProjectDependencies) = postProject
-		{158ABCCD-3B90-4AB7-8F88-BA4BF568953D} = {158ABCCD-3B90-4AB7-8F88-BA4BF568953D}
-		{BEAB52AE-7C8E-47FD-AC40-BD15A8296FAE} = {BEAB52AE-7C8E-47FD-AC40-BD15A8296FAE}
-	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "threads", "tests\threads\threads.vcxproj", "{E3A7ACBB-3A20-42F3-87F2-90DA653D7400}"
 EndProject
