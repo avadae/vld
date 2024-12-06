@@ -33,6 +33,9 @@
     <ClCompile Include="basics_disabled.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ignore_functions.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Allocs.h">
