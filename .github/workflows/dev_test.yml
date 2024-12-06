@@ -26,6 +26,10 @@ jobs:
 
     - name: Build VLD Win64
       working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: msbuild /m /p:Configuration="Release" /p:Platform=x64 -target:vld ${{env.SOLUTION_FILE_PATH}}
+
+    - name: Build VLD Win64 Tests
+      working-directory: ${{env.GITHUB_WORKSPACE}}
       run: msbuild /m /p:Configuration="Debug(Release)" /p:Platform=x64 ${{env.SOLUTION_FILE_PATH}}
 
     - name: Run tests
