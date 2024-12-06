@@ -37,7 +37,7 @@ jobs:
 
     - name: Test
       run: |
-        vstest.console '.\bin\tests\x64\debug(release)\ms_static_string.dll' /InIsolation
+        vstest.console '.\bin\tests\x64\debug(release)\vld_tests.dll' /InIsolation
         vstest.console '.\bin\tests\x64\debug(release)\threads.dll' /InIsolation
         vstest.console '.\bin\tests\x64\debug(release)\vld_unload.dll' /InIsolation
 
@@ -51,7 +51,7 @@ jobs:
 
     - name: Test Win32
       run: |
-        vstest.console '.\bin\tests\win32\debug(release)\ms_static_string.dll' /InIsolation
+        vstest.console '.\bin\tests\win32\debug(release)\vld_tests.dll' /InIsolation
         vstest.console '.\bin\tests\win32\debug(release)\threads.dll' /InIsolation
         vstest.console '.\bin\tests\win32\debug(release)\vld_unload.dll' /InIsolation
         
