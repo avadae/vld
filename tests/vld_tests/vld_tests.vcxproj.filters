@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ms_static_string.cpp">
+    <ClCompile Include="static_string.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Allocs.cpp">

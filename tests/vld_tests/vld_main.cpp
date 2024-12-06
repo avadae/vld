@@ -8,7 +8,7 @@
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 namespace fs = std::filesystem;
 
-namespace msstaticstring
+namespace vld_tests
 {
     TEST_CLASS(vld_main)
     {

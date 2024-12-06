@@ -20,7 +20,7 @@ void access_strings()
     printf("Copied string %s\n", copied_string2.c_str());
 }
 
-namespace msstaticstring
+namespace vld_tests
 {
 	TEST_CLASS(static_string)
 	{

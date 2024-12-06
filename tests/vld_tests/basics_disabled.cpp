@@ -4,16 +4,16 @@
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
-namespace msstaticstring
+namespace vld_tests
 {
-    TEST_CLASS(basics)
+    TEST_CLASS(basics_disabled)
     {
-        bool bFreeMemory = true; // todo: this used to be a parameter
+        bool bFreeMemory = false; // todo: this used to be a parameter
     public:
 
         TEST_METHOD_INITIALIZE(Setup)
         {
-            VLDMarkAllLeaksAsReported();
+            VLDDisable();
         }
 
         TEST_METHOD(TestMalloc)
@@ -22,8 +22,7 @@ namespace msstaticstring
             LeakMemoryMalloc(repeats, bFreeMemory);
             int total = static_cast<int>(VLDGetLeaksCount());
             int leaks = total - prev;
-            int correctLeaks = bFreeMemory ? 0 : repeats * 2;
-            Assert::AreEqual(correctLeaks, leaks);
+            Assert::AreEqual(0, leaks);
         }
 
         TEST_METHOD(TestNew)
@@ -32,8 +31,7 @@ namespace msstaticstring
             LeakMemoryNew(repeats, bFreeMemory);
             int total = static_cast<int>(VLDGetLeaksCount());
             int leaks = total - prev;
-            int correctLeaks = bFreeMemory ? 0 : repeats * 2;
-            Assert::AreEqual(correctLeaks, leaks);
+            Assert::AreEqual(0, leaks);
         }
 
         TEST_METHOD(TestNewArray)
@@ -42,8 +40,7 @@ namespace msstaticstring
             LeakMemoryNewArray(repeats, bFreeMemory);
             int total = static_cast<int>(VLDGetLeaksCount());
             int leaks = total - prev;
-            int correctLeaks = bFreeMemory ? 0 : repeats * 2;
-            Assert::AreEqual(correctLeaks, leaks);
+            Assert::AreEqual(0, leaks);
         }
 
         TEST_METHOD(TestCalloc)
@@ -52,8 +49,7 @@ namespace msstaticstring
             LeakMemoryCalloc(repeats, bFreeMemory);
             int total = static_cast<int>(VLDGetLeaksCount());
             int leaks = total - prev;
-            int correctLeaks = bFreeMemory ? 0 : repeats * 2;
-            Assert::AreEqual(correctLeaks, leaks);
+            Assert::AreEqual(0, leaks);
         }
 
         TEST_METHOD(TestRealloc)
@@ -62,8 +58,7 @@ namespace msstaticstring
             LeakMemoryRealloc(repeats, bFreeMemory);
             int total = static_cast<int>(VLDGetLeaksCount());
             int leaks = total - prev;
-            int correctLeaks = bFreeMemory ? 0 : repeats * 2;
-            Assert::AreEqual(correctLeaks, leaks);
+            Assert::AreEqual(0, leaks);
         }
 
         TEST_METHOD(TestCoTaskMem)
@@ -72,8 +67,7 @@ namespace msstaticstring
             LeakMemoryCoTaskMem(repeats, bFreeMemory);
             int total = static_cast<int>(VLDGetLeaksCount());
             int leaks = total - prev;
-            int correctLeaks = bFreeMemory ? 0 : repeats * 2;
-            Assert::AreEqual(correctLeaks, leaks);
+            Assert::AreEqual(0, leaks);
         }
 
         TEST_METHOD(TestAlignedMalloc)
@@ -82,8 +76,7 @@ namespace msstaticstring
             LeakMemoryAlignedMalloc(repeats, bFreeMemory);
             int total = static_cast<int>(VLDGetLeaksCount());
             int leaks = total - prev;
-            int correctLeaks = bFreeMemory ? 0 : repeats * 3;
-            Assert::AreEqual(correctLeaks, leaks);
+            Assert::AreEqual(0, leaks);
         }
 
         TEST_METHOD(TestAlignedRealloc)
@@ -92,8 +85,7 @@ namespace msstaticstring
             LeakMemoryAlignedRealloc(repeats, bFreeMemory);
             int total = static_cast<int>(VLDGetLeaksCount());
             int leaks = total - prev;
-            int correctLeaks = bFreeMemory ? 0 : repeats * 3;
-            Assert::AreEqual(correctLeaks, leaks);
+            Assert::AreEqual(0, leaks);
         }
 
         TEST_METHOD(TestStrdup)
@@ -102,8 +94,7 @@ namespace msstaticstring
             LeakMemoryStrdup(repeats, bFreeMemory);
             int total = static_cast<int>(VLDGetLeaksCount());
             int leaks = total - prev;
-            int correctLeaks = bFreeMemory ? 0 : repeats * 4;
-            Assert::AreEqual(correctLeaks, leaks);
+            Assert::AreEqual(0, leaks);
         }
 
         TEST_METHOD(TestHeapAlloc)
@@ -112,8 +103,7 @@ namespace msstaticstring
             LeakMemoryHeapAlloc(repeats, bFreeMemory);
             int total = static_cast<int>(VLDGetLeaksCount());
             int leaks = total - prev;
-            int correctLeaks = bFreeMemory ? 0 : repeats * 1;
-            Assert::AreEqual(correctLeaks, leaks);
+            Assert::AreEqual(0, leaks);
         }
 
         TEST_METHOD(TestIMalloc)
@@ -122,8 +112,7 @@ namespace msstaticstring
             LeakMemoryIMalloc(repeats, bFreeMemory);
             int total = static_cast<int>(VLDGetLeaksCount());
             int leaks = total - prev;
-            int correctLeaks = bFreeMemory ? 0 : repeats * 1;
-            Assert::AreEqual(correctLeaks, leaks);
+            Assert::AreEqual(0, leaks);
         }
 
         TEST_METHOD(TestGetProcMalloc)
@@ -132,14 +121,13 @@ namespace msstaticstring
             LeakMemoryGetProcMalloc(repeats, bFreeMemory);
             int total = static_cast<int>(VLDGetLeaksCount());
             int leaks = total - prev;
-            int correctLeaks = bFreeMemory ? 0 : repeats * 1;
-            Assert::AreEqual(correctLeaks, leaks);
+            Assert::AreEqual(0, leaks);
         }
 
         TEST_METHOD_CLEANUP(TearDown)
         {
             // Check that callstack resolved without unresolved functions (required symbols for all dll's)
-            Assert::AreEqual(0, VLDResolveCallstacks());
+            VLDEnable();
         }
     };
 }

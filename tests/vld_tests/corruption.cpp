@@ -88,7 +88,7 @@ void TestCorruption(CorruptionType check)
     }
 }
 
-namespace msstaticstring
+namespace vld_tests
 {
     TEST_CLASS(corruption)
     {

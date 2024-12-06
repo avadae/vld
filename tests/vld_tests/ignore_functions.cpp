@@ -35,7 +35,7 @@ std::string NotInTheList()
 }
 
 
-namespace msstaticstring
+namespace vld_tests
 {
     TEST_CLASS(ignore_functions)
     {

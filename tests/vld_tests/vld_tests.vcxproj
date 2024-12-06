@@ -30,9 +30,10 @@
     <VCProjectVersion>17.0</VCProjectVersion>
     <ProjectGuid>{C10696B5-E80B-4CE7-8BDF-2C7EC38B4649}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>msstaticstring</RootNamespace>
+    <RootNamespace>vld_tests</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
     <ProjectSubType>NativeUnitTestProject</ProjectSubType>
+    <ProjectName>vld_tests</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -243,7 +244,7 @@
     <ClCompile Include="basics_disabled.cpp" />
     <ClCompile Include="corruption.cpp" />
     <ClCompile Include="ignore_functions.cpp" />
-    <ClCompile Include="ms_static_string.cpp" />
+    <ClCompile Include="static_string.cpp" />
     <ClCompile Include="vld_main.cpp" />
   </ItemGroup>
   <ItemGroup>
