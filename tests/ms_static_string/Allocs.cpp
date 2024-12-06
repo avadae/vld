@@ -184,7 +184,7 @@ __declspec(noinline) void allocMalloc(bool bFree)
 #endif
 #endif
             "\\s+\\S+\\\\allocs\\.cpp \\(\\d+\\): \\w+\\.\\w+!allocmalloc\\(\\).*\n"
-            "\\s+\\S+\\\\allocs\\.cpp \\(\\d+\\): \\w+\\.\\w+!allocator<0>::alloc\\(\\)";// \\ + 0x\\S + bytes";
+            "\\s+\\S+\\\\allocs\\.cpp \\(\\d+\\): \\w+\\.\\w+!allocator<0>::alloc\\(\\) \\+ 0x\\S+ bytes";
          
         AssertCompareCallStacks(callstack, expectedCallstack);
     }
@@ -209,7 +209,7 @@ __declspec(noinline) void allocMalloc(bool bFree)
 #endif
 #endif
             "\\s+\\S+\\\\allocs\\.cpp \\(\\d+\\): \\w+\\.\\w+!allocmalloc\\(\\).*\n"
-            "\\s+\\S+\\\\allocs\\.cpp \\(\\d+\\): \\w+\\.\\w+!allocator<0>::alloc\\(\\)";// \\ + 0x\\S + bytes";
+            "\\s+\\S+\\\\allocs\\.cpp \\(\\d+\\): \\w+\\.\\w+!allocator<0>::alloc\\(\\) \\+ 0x\\S+ bytes";
         AssertCompareCallStacks( callstack, expectedCallstack);
     }
     if (bFree)
