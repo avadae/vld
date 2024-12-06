@@ -24,8 +24,8 @@ jobs:
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: nuget restore ${{env.SOLUTION_FILE_PATH}}
 
-    #- name: Setup VSTest.exe
-    #  uses: Malcolmnixon/Setup-VSTest@v4
+    - name: Setup VSTest.exe
+      uses: Malcolmnixon/Setup-VSTest@v4
 
     - name: Build VLD Win64
       working-directory: ${{env.GITHUB_WORKSPACE}}
