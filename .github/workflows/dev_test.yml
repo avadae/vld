@@ -39,4 +39,5 @@ jobs:
       run: |
         vstest.console '.\bin\tests\x64\debug(release)\ms_static_string.dll' /InIsolation
         vstest.console '.\bin\tests\x64\debug(release)\threads.dll' /InIsolation
+        vstest.console '.\bin\tests\x64\debug(release)\vld_unload.dll' /InIsolation
         
