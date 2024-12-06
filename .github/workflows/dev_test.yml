@@ -18,8 +18,8 @@ jobs:
     - uses: actions/checkout@v4
 
     - name: Add MSBuild to PATH
-      uses: microsoft/setup-msbuild@v1.0.2
-
+      uses: microsoft/setup-msbuild@v2
+      
     - name: Restore NuGet packages
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: nuget restore ${{env.SOLUTION_FILE_PATH}}
@@ -36,4 +36,7 @@ jobs:
       run: msbuild /m /p:Configuration="Debug(Release)" /p:Platform=x64 ${{env.SOLUTION_FILE_PATH}}
 
     - name: Test
-      run: vstest.console '.\bin\tests\x64\debug(release)\ms_static_string.dll' /InIsolation
+      run: |
+        vstest.console '.\bin\tests\x64\debug(release)\ms_static_string.dll' /InIsolation
+        vstest.console '.\bin\tests\x64\debug(release)\threads.dll' /InIsolation
+        
