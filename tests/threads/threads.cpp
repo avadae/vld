@@ -72,9 +72,9 @@ enum action_e {
 #endif
 #endif
 
-static int MAXALLOC = 0;                     // Maximum number of allocations of each type to perform, per thread
-static int NUMTHREADS = 0;                   // Number of threads to run simultaneously
-static int MAXBLOCKS = 0;                    // Total maximum number of allocations, per thread
+static unsigned int MAXALLOC = 0;                     // Maximum number of allocations of each type to perform, per thread
+static unsigned int NUMTHREADS = 0;                   // Number of threads to run simultaneously
+static unsigned int MAXBLOCKS = 0;                    // Total maximum number of allocations, per thread
 
 static const int MAXDEPTH = 32;              // Maximum depth of the allocation call stack
 static const int MAXSIZE = 64;               // Maximum block size to allocate
