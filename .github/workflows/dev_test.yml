@@ -16,6 +16,16 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Install GitVersion
+      uses: gittools/actions/gitversion/setup@v3
+      with:
+        versionSpec: '6.x'
+
+    - name: Determine Version
+      uses: gittools/actions/gitversion/execute@v3
 
     - name: Add MSBuild to PATH
       uses: microsoft/setup-msbuild@v2
@@ -55,4 +65,14 @@ jobs:
         vstest.console '.\bin\tests\win32\debug(release)\threads.dll' /InIsolation
         vstest.console '.\bin\tests\win32\debug(release)\vld_unload.dll' /InIsolation
         
-        
+    - name: Compile .ISS to .EXE Installer
+      uses: Minionguyjpro/Inno-Setup-Action@v1.2.4
+      with:
+        path: ./setup/vld-setup.iss
+        options: /V0 /O+ /DMyAppVersion=${{ env.GitVersion_MajorMinorPatch }}
+
+    - uses: actions/upload-artifact@v4
+      with:
+        name: Installer
+        path: ./setup/Output/vld-${{ env.GitVersion_MajorMinorPatch }}-setup.exe
+        retention-days: 1
