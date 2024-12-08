@@ -92,7 +92,8 @@ BOOLEAN WINAPI LdrpCallInitRoutine(IN PVOID BaseAddress, IN ULONG Reason, IN PVO
     LoaderLock ll;
 
     if (Reason == DLL_PROCESS_ATTACH) {
-        g_vld.RefreshModules();
+        if (!g_DbgHelp.IsLockedByCurrentThread())
+            g_vld.RefreshModules();
     }
 
     return EntryPoint(BaseAddress, Reason, (PCONTEXT)Context);
