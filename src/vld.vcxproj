@@ -67,8 +67,6 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <BaseAddress>0x03200000</BaseAddress>
-      <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
@@ -189,7 +187,7 @@
     <ClInclude Include="callstack.h" />
     <ClInclude Include="criticalsection.h" />
     <ClInclude Include="crtmfcpatch.h" />
-    <ClInclude Include="dbghelp.h" />
+    <ClInclude Include="vld_dbghelp.h" />
     <ClInclude Include="map.h" />
     <ClInclude Include="ntapi.h" />
     <ClInclude Include="resource.h" />
