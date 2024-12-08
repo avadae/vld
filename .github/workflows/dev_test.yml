@@ -15,7 +15,8 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout
+      uses: actions/checkout@v4
       with:
         fetch-depth: 0
 
@@ -37,15 +38,20 @@ jobs:
     - name: Setup VSTest.exe
       uses: Malcolmnixon/Setup-VSTest@v4
 
-    - name: Build VLD Win64
+    - name: Update version number in version.h
+      shell: pwsh
+      run: |
+        ./update_version.ps1
+
+    - name: Build Win64 VLD
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: msbuild /m /p:Configuration="Release" /p:Platform=x64 -target:vld ${{env.SOLUTION_FILE_PATH}}
 
-    - name: Build VLD Win64 Tests
+    - name: Build Win64 Tests
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: msbuild /m /p:Configuration="Debug(Release)" /p:Platform=x64 ${{env.SOLUTION_FILE_PATH}}
 
-    - name: Test
+    - name: Test Win64
       run: |
         vstest.console '.\bin\tests\x64\debug(release)\vld_tests.dll' /InIsolation
         vstest.console '.\bin\tests\x64\debug(release)\threads.dll' /InIsolation
@@ -65,13 +71,14 @@ jobs:
         vstest.console '.\bin\tests\win32\debug(release)\threads.dll' /InIsolation
         vstest.console '.\bin\tests\win32\debug(release)\vld_unload.dll' /InIsolation
         
-    - name: Compile .ISS to .EXE Installer
+    - name: Create installer
       uses: Minionguyjpro/Inno-Setup-Action@v1.2.4
       with:
         path: ./setup/vld-setup.iss
         options: /V0 /O+ /DMyAppVersion=${{ env.GitVersion_MajorMinorPatch }}
 
-    - uses: actions/upload-artifact@v4
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
       with:
         name: Installer
         path: ./setup/Output/vld-${{ env.GitVersion_MajorMinorPatch }}-setup.exe
