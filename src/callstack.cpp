@@ -36,6 +36,8 @@ extern CriticalSection    g_heapMapLock;
 extern VisualLeakDetector g_vld;
 extern DbgHelp g_DbgHelp;
 
+std::wstring moduleNameNotFound = std::wstring(L"(Module name unavailable)");
+
 // Helper function to compare the begin of a string with a substring
 //
 template <size_t N>
@@ -226,7 +228,7 @@ DWORD CallStack::resolveFunction(SIZE_T programCounter, IMAGEHLP_LINEW64* source
 {
     WCHAR callingModuleName[260];
     HMODULE hCallingModule = GetCallingModule(programCounter);
-    LPWSTR moduleName = L"(Module name unavailable)";
+    LPWSTR moduleName = moduleNameNotFound.data();
     if (hCallingModule &&
         GetModuleFileName(hCallingModule, callingModuleName, _countof(callingModuleName)) > 0)
     {
