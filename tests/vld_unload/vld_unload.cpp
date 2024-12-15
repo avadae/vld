@@ -70,9 +70,9 @@ namespace vldunload
 		
 		TEST_METHOD(TestUnloadDlls1)
 		{
-            Assert::AreEqual(NULL, (int)GetModuleHandle(sVld_dll));
+            Assert::IsNull(GetModuleHandle(sVld_dll));
             HMODULE hModule1 = ::LoadLibrary(_T("vld_dll1.dll"));
-            Assert::AreNotEqual(NULL, (int)hModule1);
+            Assert::IsNotNull(hModule1);
             int w = VLDGetLeaksCount(); // vld is loaded and counts 1 memory leak
             ExpectLeakCount(1, w);
             ::FreeLibrary(hModule1);    // vld is unloaded here and reports the memory leak
@@ -80,7 +80,7 @@ namespace vldunload
             ExpectLeakCount(-1, x);
         
             HMODULE hModule2 = ::LoadLibrary(_T("vld_dll2.dll"));
-            Assert::AreNotEqual(NULL, (int)hModule2);
+            Assert::IsNotNull(hModule2);
             int y = VLDGetLeaksCount(); // vld is loaded and counts 1 memory leak
             ExpectLeakCount(1, y);
             ::FreeLibrary(hModule2);    // vld is unloaded here and reports the memory leak
@@ -90,11 +90,13 @@ namespace vldunload
 
         TEST_METHOD(TestUnloadDlls2)
         {
-            Assert::AreEqual(NULL, (int)GetModuleHandle(sVld_dll));
+            Assert::IsNull(GetModuleHandle(sVld_dll));
             HMODULE hModule3 = ::LoadLibrary(_T("vld_dll1.dll"));
+            Assert::IsNotNull(hModule3);
             int w = VLDGetLeaksCount(); // vld is loaded and counts 1 memory leak
             ExpectLeakCount(1, w);
             HMODULE hModule4 = ::LoadLibrary(_T("vld_dll2.dll"));
+            Assert::IsNotNull(hModule4);
             int x = VLDGetLeaksCount(); // vld is still loaded and counts 2 memory leaks
             ExpectLeakCount(2, x);
             ::FreeLibrary(hModule4);    // vld is *not* unloaded here
@@ -107,11 +109,13 @@ namespace vldunload
 
         TEST_METHOD(TestUnloadDlls3)
         {
-            Assert::AreEqual(NULL, (int)GetModuleHandle(sVld_dll));
+            Assert::IsNull(GetModuleHandle(sVld_dll));
             HMODULE hModule5 = ::LoadLibrary(_T("vld_dll1.dll"));
+            Assert::IsNotNull(hModule5);
             int w = VLDGetLeaksCount(); // vld is loaded and counts 1 memory leak
             ExpectLeakCount(1, w);
             HMODULE hModule6 = ::LoadLibrary(_T("vld_dll2.dll"));
+            Assert::IsNotNull(hModule6);
             int x = VLDGetLeaksCount(); // vld is still loaded and counts 2 memory leaks
             ExpectLeakCount(2, x);
             ::FreeLibrary(hModule5);    // vld is *not* unloaded here
@@ -124,7 +128,7 @@ namespace vldunload
 
         TEST_METHOD(TestUnloadDlls4)
         {
-            Assert::AreEqual(NULL, (int)GetModuleHandle(sVld_dll));
+            Assert::IsNull(GetModuleHandle(sVld_dll));
             typedef FARPROC(__stdcall* GetProcAddress_t) (HMODULE, LPCSTR);
         
             HMODULE kernel32 = GetModuleHandleW(L"KernelBase.dll");
@@ -136,6 +140,7 @@ namespace vldunload
             GetProcAddress_t pGetProcAddress1 = GetProcAddress;
         
             HMODULE hModule7 = ::LoadLibrary(_T("vld_dll1.dll"));
+            Assert::IsNotNull(hModule7);
             int w = VLDGetLeaksCount(); // vld is loaded and counts 1 memory leak
             ExpectLeakCount(1, w);
             // pGetProcAddress2 resolves to vld_xXX.dll!VisualLeakDetector::_GetProcAddress()
