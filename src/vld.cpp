@@ -37,6 +37,7 @@
 #include "vldint.h"      // Provides access to the Visual Leak Detector internals.
 #include "loaderlock.h"
 #include "tchar.h"
+#include <mutex>
 
 #define BLOCK_MAP_RESERVE   64  // This should strike a balance between memory use and a desire to minimize heap hits.
 #define HEAP_MAP_RESERVE    2   // Usually there won't be more than a few heaps in the process, so this should be small.
@@ -45,7 +46,7 @@
 // Imported global variables.
 extern vldblockheader_t *g_vldBlockList;
 extern HANDLE            g_vldHeap;
-extern CriticalSection   g_vldHeapLock;
+extern std::mutex        g_vldHeapLock;
 
 // Global variables.
 HANDLE           g_currentProcess; // Pseudo-handle for the current process.
@@ -422,7 +423,6 @@ VisualLeakDetector::VisualLeakDetector ()
 
     g_heapMapLock.Initialize();
     g_vldHeap         = HeapCreate(0x0, 0, 0);
-    g_vldHeapLock.Initialize();
     g_pReportHooks    = new ReportHookSet;
 
     // Initialize remaining private data.
@@ -734,7 +734,6 @@ VisualLeakDetector::~VisualLeakDetector ()
     m_modulesLock.Delete();
     m_tlsLock.Delete();
     g_heapMapLock.Delete();
-    g_vldHeapLock.Delete();
 
     if (m_tlsIndex != TLS_OUT_OF_INDEXES) {
         TlsFree(m_tlsIndex);

@@ -56,6 +56,7 @@
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories />
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -70,6 +71,7 @@
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories />
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -82,6 +84,7 @@
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;FMT_USE_FILE_DESCRIPTORS=1;GTEST_LANG_CXX11=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories />
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -94,6 +97,7 @@
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;FMT_USE_FILE_DESCRIPTORS=1;GTEST_LANG_CXX11=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories />
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
