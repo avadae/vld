@@ -37,6 +37,11 @@
 #include "vldint.h"      // Provides access to the Visual Leak Detector internals.
 #include "loaderlock.h"
 #include "tchar.h"
+
+#define _DECL_DLLMAIN  // for _CRT_INIT
+#include <process.h>   // for _CRT_INIT
+#pragma comment(linker, "/entry:DllEntryPoint")
+
 #include <mutex>
 
 #define BLOCK_MAP_RESERVE   64  // This should strike a balance between memory use and a desire to minimize heap hits.
@@ -280,44 +285,42 @@ BOOL NtDllRestore(NTDLL_LDR_PATCH &NtDllPatch)
     return bResult;
 }
 
-BOOL WINAPI DllMain(HINSTANCE /*hinstDLL*/, DWORD fdwReason, LPVOID /*lpReserved*/)
-{
-    if (fdwReason == DLL_PROCESS_ATTACH) {
-        NtDllPatch((PBYTE)_ReturnAddress(), patch);
-    }
-
-    if (fdwReason == DLL_PROCESS_DETACH) {
-        NtDllRestore(patch);
-    }
-
-    return TRUE; // The CRT will handle initialization automatically
-}
-
-//#define _DECL_DLLMAIN  // for _CRT_INIT
-//#include <process.h>   // for _CRT_INIT
-//#pragma comment(linker, "/entry:DllEntryPoint")
-//
-//__declspec(noinline)
-//BOOL WINAPI DllEntryPoint(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
+//BOOL WINAPI DllMain(HINSTANCE /*hinstDLL*/, DWORD fdwReason, LPVOID /*lpReserved*/)
 //{
-//    // Patch/Restore ntdll address that calls the dll entry point
 //    if (fdwReason == DLL_PROCESS_ATTACH) {
 //        NtDllPatch((PBYTE)_ReturnAddress(), patch);
 //    }
 //
-//    if (fdwReason == DLL_PROCESS_ATTACH || fdwReason == DLL_THREAD_ATTACH)
-//        if (!_CRT_INIT(hinstDLL, fdwReason, lpReserved))
-//            return(FALSE);
-//
-//    if (fdwReason == DLL_PROCESS_DETACH || fdwReason == DLL_THREAD_DETACH)
-//        if (!_CRT_INIT(hinstDLL, fdwReason, lpReserved))
-//            return(FALSE);
-//
 //    if (fdwReason == DLL_PROCESS_DETACH) {
 //        NtDllRestore(patch);
 //    }
-//    return(TRUE);
+//
+//    return TRUE; // The CRT will handle initialization automatically
 //}
+
+
+
+__declspec(noinline)
+BOOL WINAPI DllEntryPoint(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
+{
+    // Patch/Restore ntdll address that calls the dll entry point
+    if (fdwReason == DLL_PROCESS_ATTACH) {
+        NtDllPatch((PBYTE)_ReturnAddress(), patch);
+    }
+
+    if (fdwReason == DLL_PROCESS_ATTACH || fdwReason == DLL_THREAD_ATTACH)
+        if (!_CRT_INIT(hinstDLL, fdwReason, lpReserved))
+            return(FALSE);
+
+    if (fdwReason == DLL_PROCESS_DETACH || fdwReason == DLL_THREAD_DETACH)
+        if (!_CRT_INIT(hinstDLL, fdwReason, lpReserved))
+            return(FALSE);
+
+    if (fdwReason == DLL_PROCESS_DETACH) {
+        NtDllRestore(patch);
+    }
+    return(TRUE);
+}
 
 /////////////////////////////////////////////////////////
 
