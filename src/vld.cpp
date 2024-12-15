@@ -28,7 +28,6 @@
 #include <sys/stat.h>
 
 #define VLDBUILD         // Declares that we are building Visual Leak Detector.
-#define _DECL_DLLMAIN    // Enables _CRT_INIT, needs to be specified before any header referring to process.h (like mutex)
 #include "callstack.h"   // Provides a class for handling call stacks.
 #include "crtmfcpatch.h" // Provides CRT and MFC patch functions.
 #include "map.h"         // Provides a lightweight STL-like map template.
@@ -47,7 +46,6 @@
 // Imported global variables.
 extern vldblockheader_t *g_vldBlockList;
 extern HANDLE            g_vldHeap;
-extern std::mutex        g_vldHeapLock;
 
 // Global variables.
 HANDLE           g_currentProcess; // Pseudo-handle for the current process.

@@ -3,6 +3,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <DbgHelp.h>
+#include <mutex>
 #include "criticalsection.h"
 
 class DbgHelp
@@ -104,78 +105,51 @@ public:
             FunctionTableAccessRoutine, GetModuleBaseRoutine, TranslateAddress);
     }
 private:
-    // Disallow certain operations
-    DbgHelp(const DbgHelp&);
-    DbgHelp& operator=(const DbgHelp&);
+    DbgHelp(const DbgHelp&) = delete;
+    DbgHelp& operator=(const DbgHelp&) = delete;
 
-private:
+    DbgHelp(DbgHelp&&) = delete;
+    DbgHelp& operator=(DbgHelp&&) = delete;
+
     CriticalSection m_lock;
 };
 
 class ImageDirectoryEntries
 {
 public:
-    ImageDirectoryEntries() {
-        m_lock.Initialize();
-    }
-    ~ImageDirectoryEntries() {
-        m_lock.Delete();
-    }
-    void Enter()
-    {
-        m_lock.Enter();
-    }
-    void Leave()
-    {
-        m_lock.Leave();
-    }
-    BOOL IsLockedByCurrentThread() {
-        return
-            m_lock.IsLockedByCurrentThread();
-    }
+    ImageDirectoryEntries() = default;
+    ~ImageDirectoryEntries() = default;
+
     PVOID ImageDirectoryEntryToDataEx(__in PVOID Base, __in BOOLEAN MappedAsImage, __in USHORT DirectoryEntry, __out PULONG Size, __out_opt PIMAGE_SECTION_HEADER *FoundHeader) {
-        CriticalSectionLocker<CriticalSection> cs(m_lock);
+        std::scoped_lock lock(_mutex);
         return ::ImageDirectoryEntryToDataEx(Base, MappedAsImage, DirectoryEntry, Size, FoundHeader);
     }
 private:
-    // Disallow certain operations
-    ImageDirectoryEntries(const ImageDirectoryEntries&);
-    ImageDirectoryEntries& operator=(const ImageDirectoryEntries&);
+    ImageDirectoryEntries(const ImageDirectoryEntries&) = delete;
+    ImageDirectoryEntries& operator=(const ImageDirectoryEntries&) = delete;
 
-private:
-    CriticalSection m_lock;
+    ImageDirectoryEntries(ImageDirectoryEntries&&) = delete;
+    ImageDirectoryEntries& operator=(ImageDirectoryEntries&&) = delete;
+
+    std::mutex _mutex{};
 };
 
 class LoadedModules
 {
 public:
-    LoadedModules() {
-        m_lock.Initialize();
-    }
-    ~LoadedModules() {
-        m_lock.Delete();
-    }
-    void Enter()
-    {
-        m_lock.Enter();
-    }
-    void Leave()
-    {
-        m_lock.Leave();
-    }
-    BOOL IsLockedByCurrentThread() {
-        return
-            m_lock.IsLockedByCurrentThread();
-    }
+    LoadedModules() = default;
+    ~LoadedModules() = default;
+    
     BOOL EnumerateLoadedModulesW64(__in HANDLE hProcess, __in PENUMLOADED_MODULES_CALLBACKW64 EnumLoadedModulesCallback, __in_opt PVOID UserContext) {
-        CriticalSectionLocker<CriticalSection> cs(m_lock);
+        std::scoped_lock lock(_mutex);
         return ::EnumerateLoadedModulesW64(hProcess, EnumLoadedModulesCallback, UserContext);
     }
 private:
-    // Disallow certain operations
-    LoadedModules(const LoadedModules&);
-    LoadedModules& operator=(const LoadedModules&);
+    LoadedModules(const LoadedModules&) = delete;
+    LoadedModules& operator=(const LoadedModules&) = delete;
 
-private:
-    CriticalSection m_lock;
+    LoadedModules(LoadedModules&&) = delete;
+    LoadedModules& operator=(LoadedModules&&) = delete;
+
+    std::mutex _mutex{};
 };

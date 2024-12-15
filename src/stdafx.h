@@ -1,4 +1,5 @@
 #pragma once
+#define _DECL_DLLMAIN    // Enables _CRT_INIT, needs to be specified before any header referring to process.h (like mutex)
 
 #include <cassert>
 #include <cerrno>

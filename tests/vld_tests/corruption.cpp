@@ -145,47 +145,6 @@ namespace vld_tests
 
         //    // Step 5: Validate the result
         //    Assert::IsTrue(caughtCriticalError, L"Expected a critical error message but none was found.");
-        //}TEST_METHOD(HeapMismatch)
-        //{
-        //    // Step 1: Configure VLD options
-        //    UINT vld_options = VLDGetOptions();
-        //    vld_options |= VLD_OPT_VALIDATE_HEAPFREE;
-        //    VLDSetOptions(vld_options, 15, 25);
-
-        //    // Step 2: Install the report hook
-        //    VLDSetReportHook(VLD_RPTHOOK_INSTALL, ReportHook);
-
-        //    // Step 3: Capture the output and simulate EXPECT_EXIT
-        //    bool caughtCriticalError = false;
-        //    __try
-        //    {
-        //        TestCorruption(eHeapMismatch);
-        //    }
-        //    __except (EXCEPTION_EXECUTE_HANDLER)
-        //    {
-        //        // Verify the exception code
-        //        DWORD exceptionCode = GetExceptionCode();
-        //        if (exceptionCode == 0xC0000374) // Heap corruption exception
-        //        {
-        //            Logger::WriteMessage(L"Heap corruption exception caught.");
-        //            caughtCriticalError = true;
-        //        }
-        //        if (exceptionCode == 0xC0000005) // Access violation exception
-        //        {
-        //            Logger::WriteMessage(L"Access violation exception caught.");
-        //            caughtCriticalError = true;
-        //        }
-        //        else
-        //        {
-        //            Logger::WriteMessage(L"Unexpected exception caught.");
-        //        }
-        //    }
-
-        //    // Step 4: Remove the report hook
-        //    VLDSetReportHook(VLD_RPTHOOK_REMOVE, ReportHook);
-
-        //    // Step 5: Validate the result
-        //    Assert::IsTrue(caughtCriticalError, L"Expected a critical error message but none was found.");
         //}
 
         TEST_METHOD_CLEANUP(TearDown)
