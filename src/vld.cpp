@@ -418,12 +418,9 @@ VisualLeakDetector::VisualLeakDetector ()
     m_curAlloc        = 0;
     m_maxAlloc        = 0;
     m_loadedModules   = new ModuleSet();
-    m_optionsLock.Initialize();
-    m_modulesLock.Initialize();
     m_selfTestFile    = __FILE__;
     m_selfTestLine    = 0;
     m_tlsIndex        = TlsAlloc();
-    m_tlsLock.Initialize();
     m_tlsMap          = new TlsMap;
     m_ignoreFunctions = new IgnoreFunctionsSet();
 
@@ -534,7 +531,7 @@ bool VisualLeakDetector::waitForAllVLDThreads()
     int waitcount = 0;
 
     // See if any threads that have ever entered VLD's code are still active.
-    CriticalSectionLocker<> cs(m_tlsLock);
+    std::scoped_lock lock(m_tlsLock);
     for (TlsMap::Iterator tlsit = m_tlsMap->begin(); tlsit != m_tlsMap->end(); ++tlsit) {
         if ((*tlsit).second->threadId == GetCurrentThreadId()) {
             // Don't wait for the current thread to exit.
@@ -688,7 +685,7 @@ VisualLeakDetector::~VisualLeakDetector ()
 
         {
             // Free internally allocated resources used for thread local storage.
-            CriticalSectionLocker<> cs(m_tlsLock);
+            std::scoped_lock lock(m_tlsLock);
             for (TlsMap::Iterator tlsit = m_tlsMap->begin(); tlsit != m_tlsMap->end(); ++tlsit) {
                 delete (*tlsit).second;
             }
@@ -714,9 +711,6 @@ VisualLeakDetector::~VisualLeakDetector ()
     }
     HeapDestroy(g_vldHeap);
 
-    m_optionsLock.Delete();
-    m_modulesLock.Delete();
-    m_tlsLock.Delete();
     g_heapMapLock.Delete();
 
     if (m_tlsIndex != TLS_OUT_OF_INDEXES) {
@@ -748,7 +742,7 @@ UINT32 VisualLeakDetector::getModuleState(ModuleSet::Iterator& it, UINT32& modul
         return 0;
 
     {
-        CriticalSectionLocker<> cs(m_modulesLock);
+        std::scoped_lock lock(g_vld.m_loadedModulesMutex);
         ModuleSet* oldmodules = m_loadedModules;
         ModuleSet::Iterator oldit = oldmodules->find(moduleinfo);
         if (oldit != oldmodules->end()) // We've seen this "new" module loaded in the process before.
@@ -1319,7 +1313,7 @@ tls_t* VisualLeakDetector::getTls ()
     if (tls == NULL) {
         DWORD threadId = GetCurrentThreadId();
 
-        CriticalSectionLocker<> cs(m_tlsLock);
+        std::scoped_lock lock(m_tlsLock);
         TlsMap::Iterator it = m_tlsMap->find(threadId);
         if (it == m_tlsMap->end()) {
             // This thread's thread local storage structure has not been allocated.
@@ -2351,7 +2345,7 @@ VOID VisualLeakDetector::RefreshModules()
     }
 
     // Start using the new set of loaded modules.
-    CriticalSectionLocker<> cs(m_modulesLock);
+    std::scoped_lock lock(g_vld.m_loadedModulesMutex);
     ModuleSet* oldmodules = m_loadedModules;
     m_loadedModules = newmodules;
 
@@ -2368,7 +2362,7 @@ bool VisualLeakDetector::isModuleExcluded(UINT_PTR address)
     moduleinfo.addrHigh = address + 1024;
     moduleinfo.flags = 0;
 
-    CriticalSectionLocker<> cs(g_vld.m_modulesLock);
+    std::scoped_lock lock(g_vld.m_loadedModulesMutex);
     moduleit = g_vld.m_loadedModules->find(moduleinfo);
     if (moduleit != g_vld.m_loadedModules->end())
         return (*moduleit).flags & VLD_MODULE_EXCLUDED ? true : false;
@@ -2500,7 +2494,7 @@ void VisualLeakDetector::ChangeModuleState(HMODULE module, bool on)
 {
     ModuleSet::Iterator  moduleit;
 
-    CriticalSectionLocker<> cs(m_modulesLock);
+    std::scoped_lock lock(g_vld.m_loadedModulesMutex);
     moduleit = m_loadedModules->begin();
     while( moduleit != m_loadedModules->end() )
     {
@@ -2596,11 +2590,10 @@ void VisualLeakDetector::GlobalDisableLeakDetection ()
         return;
     }
 
-    CriticalSectionLocker<> cs(m_optionsLock);
+    std::scoped_lock lock(m_optionsLock, m_tlsLock);
     m_options |= VLD_OPT_START_DISABLED;
 
     // Disable memory leak detection for all threads.
-    CriticalSectionLocker<> cstls(m_tlsLock);
     TlsMap::Iterator     tlsit;
     for (tlsit = m_tlsMap->begin(); tlsit != m_tlsMap->end(); ++tlsit) {
         (*tlsit).second->oldFlags = (*tlsit).second->flags;
@@ -2616,12 +2609,11 @@ void VisualLeakDetector::GlobalEnableLeakDetection ()
         return;
     }
 
-    CriticalSectionLocker<> cs(m_optionsLock);
+    std::scoped_lock lock(m_optionsLock, m_tlsLock);
     m_options &= ~VLD_OPT_START_DISABLED;
     m_status &= ~VLD_STATUS_NEVER_ENABLED;
 
     // Enable memory leak detection for all threads.
-    CriticalSectionLocker<> cstls(m_tlsLock);
     TlsMap::Iterator     tlsit;
     for (tlsit = m_tlsMap->begin(); tlsit != m_tlsMap->end(); ++tlsit) {
         (*tlsit).second->oldFlags = (*tlsit).second->flags;
@@ -2637,7 +2629,7 @@ CONST UINT32 OptionsMask = VLD_OPT_AGGREGATE_DUPLICATES | VLD_OPT_MODULE_LIST_IN
 
 UINT32 VisualLeakDetector::GetOptions()
 {
-    CriticalSectionLocker<> cs(m_optionsLock);
+    std::scoped_lock lock(m_optionsLock);
     return m_options & OptionsMask;
 }
 
@@ -2648,7 +2640,7 @@ void VisualLeakDetector::SetOptions(UINT32 option_mask, SIZE_T maxDataDump, UINT
         return;
     }
 
-    CriticalSectionLocker<> cs(m_optionsLock);
+    std::scoped_lock lock(m_optionsLock);
     m_options &= ~OptionsMask; // clear used bits
     m_options |= option_mask & OptionsMask;
 
@@ -2670,7 +2662,7 @@ void VisualLeakDetector::SetModulesList(CONST WCHAR *modules, BOOL includeModule
         return;
     }
 
-    CriticalSectionLocker<> cs(m_optionsLock);
+    std::scoped_lock lock(m_optionsLock);
     wcsncpy_s(m_forcedModuleList, MAXMODULELISTLENGTH, modules, _TRUNCATE);
     _wcslwr_s(m_forcedModuleList, MAXMODULELISTLENGTH);
     if (includeModules)
@@ -2687,7 +2679,7 @@ bool VisualLeakDetector::GetModulesList(WCHAR *modules, UINT size)
         return true;
     }
 
-    CriticalSectionLocker<> cs(m_optionsLock);
+    std::scoped_lock lock(m_optionsLock);
     wcsncpy_s(modules, size, m_forcedModuleList, _TRUNCATE);
     return (m_options & VLD_OPT_MODULE_LIST_INCLUDE) > 0;
 }
@@ -2700,7 +2692,7 @@ void VisualLeakDetector::GetReportFilename(WCHAR *filename)
         return;
     }
 
-    CriticalSectionLocker<> cs(m_optionsLock);
+    std::scoped_lock lock(m_optionsLock);
     wcsncpy_s(filename, MAX_PATH, m_reportFilePath, _TRUNCATE);
 }
 
@@ -2711,7 +2703,7 @@ void VisualLeakDetector::SetReportOptions(UINT32 option_mask, CONST WCHAR *filen
         return;
     }
 
-    CriticalSectionLocker<> cs(m_optionsLock);
+    std::scoped_lock lock(m_optionsLock);
     m_options &= ~(VLD_OPT_REPORT_TO_DEBUGGER | VLD_OPT_REPORT_TO_FILE |
         VLD_OPT_REPORT_TO_STDOUT | VLD_OPT_UNICODE_REPORT); // clear used bits
 
@@ -2747,7 +2739,7 @@ int VisualLeakDetector::SetReportHook(int mode, VLD_REPORT_HOOK pfnNewHook)
         // VLD has been turned off.
         return -1;
     }
-    CriticalSectionLocker<> cs(m_optionsLock);
+    std::scoped_lock lock(m_optionsLock);
     if (mode == VLD_RPTHOOK_INSTALL)
     {
         ReportHookSet::Iterator it = g_pReportHooks->insert(pfnNewHook);
