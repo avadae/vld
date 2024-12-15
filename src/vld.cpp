@@ -28,6 +28,7 @@
 #include <sys/stat.h>
 
 #define VLDBUILD         // Declares that we are building Visual Leak Detector.
+#define _DECL_DLLMAIN    // Enables _CRT_INIT, needs to be specified before any header referring to process.h (like mutex)
 #include "callstack.h"   // Provides a class for handling call stacks.
 #include "crtmfcpatch.h" // Provides CRT and MFC patch functions.
 #include "map.h"         // Provides a lightweight STL-like map template.
@@ -37,11 +38,6 @@
 #include "vldint.h"      // Provides access to the Visual Leak Detector internals.
 #include "loaderlock.h"
 #include "tchar.h"
-
-#define _DECL_DLLMAIN  // for _CRT_INIT
-#include <process.h>   // for _CRT_INIT
-#pragma comment(linker, "/entry:DllEntryPoint")
-
 #include <mutex>
 
 #define BLOCK_MAP_RESERVE   64  // This should strike a balance between memory use and a desire to minimize heap hits.
@@ -285,20 +281,7 @@ BOOL NtDllRestore(NTDLL_LDR_PATCH &NtDllPatch)
     return bResult;
 }
 
-//BOOL WINAPI DllMain(HINSTANCE /*hinstDLL*/, DWORD fdwReason, LPVOID /*lpReserved*/)
-//{
-//    if (fdwReason == DLL_PROCESS_ATTACH) {
-//        NtDllPatch((PBYTE)_ReturnAddress(), patch);
-//    }
-//
-//    if (fdwReason == DLL_PROCESS_DETACH) {
-//        NtDllRestore(patch);
-//    }
-//
-//    return TRUE; // The CRT will handle initialization automatically
-//}
-
-
+#pragma comment(linker, "/entry:DllEntryPoint")
 
 __declspec(noinline)
 BOOL WINAPI DllEntryPoint(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
