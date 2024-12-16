@@ -46,6 +46,7 @@
 // Imported global variables.
 extern vldblockheader_t *g_vldBlockList;
 extern HANDLE            g_vldHeap;
+extern CriticalSection   g_vldHeapLock;
 
 // Global variables.
 HANDLE           g_currentProcess; // Pseudo-handle for the current process.
@@ -407,6 +408,7 @@ VisualLeakDetector::VisualLeakDetector ()
 
     g_heapMapLock.Initialize();
     g_vldHeap         = HeapCreate(0x0, 0, 0);
+    g_vldHeapLock.Initialize();
     g_pReportHooks    = new ReportHookSet;
 
     // Initialize remaining private data.
@@ -712,6 +714,7 @@ VisualLeakDetector::~VisualLeakDetector ()
     HeapDestroy(g_vldHeap);
 
     g_heapMapLock.Delete();
+    g_vldHeapLock.Delete();
 
     if (m_tlsIndex != TLS_OUT_OF_INDEXES) {
         TlsFree(m_tlsIndex);

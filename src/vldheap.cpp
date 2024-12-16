@@ -26,13 +26,13 @@
 #define VLDBUILD     // Declares that we are building Visual Leak Detector.
 #include "ntapi.h"   // Provides access to NT APIs.
 #include "vldheap.h" // Provides access to VLD's internal heap data structures.
-#include <mutex>
+#include "criticalsection.h"
 #undef new           // Do not map "new" to VLD's new operator in this file
 
 // Global variables.
 vldblockheader_t *g_vldBlockList = nullptr; // List of internally allocated blocks on VLD's private heap.
 HANDLE            g_vldHeap;             // VLD's private heap.
-std::mutex        g_vldHeapLock;         // Serializes access to VLD's private heap.
+CriticalSection   g_vldHeapLock;         // Serializes access to VLD's private heap.
 bool g_vldHeapActive = false;
 
 // Local helper functions.
@@ -172,7 +172,7 @@ void* vldnew (size_t size, const char *file, int line)
     header->size         = size;
 
     // Link the block into the block list.
-    std::scoped_lock lock(g_vldHeapLock);
+    CriticalSectionLocker<> cs(g_vldHeapLock);
     header->next         = g_vldBlockList;
     if (header->next != nullptr) {
         header->next->prev = header;
@@ -201,7 +201,7 @@ void vlddelete (void *block)
     vldblockheader_t *header = VLDBLOCKHEADER((LPVOID)block);
 
     // Unlink the block from the block list.
-    std::scoped_lock lock(g_vldHeapLock);
+    CriticalSectionLocker<> cs(g_vldHeapLock);
     if (header->prev) {
         header->prev->next = header->next;
     }
