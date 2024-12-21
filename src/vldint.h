@@ -345,6 +345,7 @@ private:
     void setupReporting();
     void checkInternalMemoryLeaks();
     bool waitForAllVLDThreads();
+    bool TryToCloseThread(DWORD threadId);
 
     ////////////////////////////////////////////////////////////////////////////////
     // IAT replacement functions - see each function definition for details.

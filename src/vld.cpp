@@ -526,49 +526,54 @@ VisualLeakDetector::VisualLeakDetector ()
     reportConfig();
 }
 
+
+bool VisualLeakDetector::TryToCloseThread(DWORD threadId)
+{
+    if (threadId == GetCurrentThreadId()) {
+        // Don't close the current thread.
+        return false;
+    }
+
+    DWORD dwCurProcessID = GetCurrentProcessId();
+    
+    HANDLE hThread = OpenThread(THREAD_QUERY_INFORMATION, FALSE, threadId);
+    if (!hThread) {
+        // Couldn't query this thread. We'll assume that it exited.
+        return false;
+    }
+
+    DWORD dwProcessId = GetProcessIdOfThread(hThread);
+    if (dwProcessId != dwCurProcessID) {
+        //The thread ID has been recycled.
+        CloseHandle(hThread);
+        return false;
+    }
+
+    DWORD dwExitCode;
+    if (GetExitCodeThread(hThread, &dwExitCode))
+    {
+        if (dwExitCode == STILL_ACTIVE) {
+            Report(L"Thread %d running on process %d is still active...\n", threadId, dwProcessId);
+        }
+        else {
+            Report(L"Thread %d running on process %d has exited, Exit code %d ...\n", threadId, dwProcessId, dwExitCode);
+            CloseHandle(hThread);
+            return false;
+        }
+    }
+
+    CloseHandle(hThread);
+    return true;
+}
+
 bool VisualLeakDetector::waitForAllVLDThreads()
 {
     bool threadsactive = false;
-    DWORD dwCurProcessID = GetCurrentProcessId();
-    int waitcount = 0;
-
     // See if any threads that have ever entered VLD's code are still active.
     std::scoped_lock lock(m_tlsLock);
     for (TlsMap::Iterator tlsit = m_tlsMap->begin(); tlsit != m_tlsMap->end(); ++tlsit) {
-        if ((*tlsit).second->threadId == GetCurrentThreadId()) {
-            // Don't wait for the current thread to exit.
-            continue;
-        }
-
-        HANDLE thread = OpenThread(SYNCHRONIZE | THREAD_QUERY_INFORMATION, FALSE, (*tlsit).second->threadId);
-        if (thread == NULL) {
-            // Couldn't query this thread. We'll assume that it exited.
-            continue; // XXX should we check GetLastError()?
-        }
-        if (GetProcessIdOfThread(thread) != dwCurProcessID) {
-            //The thread ID has been recycled.
-            CloseHandle(thread);
-            continue;
-        }
-        if (WaitForSingleObject(thread, 10000) == WAIT_TIMEOUT) { // 10 seconds
-            // There is still at least one other thread running. The CRT
-            // will stomp it dead when it cleans up, which is not a
-            // graceful way for a thread to go down. Warn about this,
-            // and wait until the thread has exited so that we know it
-            // can't still be off running somewhere in VLD's code.
-            //
-            // Since we've been waiting a while, let the human know we are
-            // still here and alive.
-            waitcount++;
-            threadsactive = true;
-            if (waitcount >= 9) // 90 sec.
-            {
-                CloseHandle(thread);
-                return threadsactive;
-            }
-            Report(L"Visual Leak Detector: Waiting for threads to terminate...\n");
-        }
-        CloseHandle(thread);
+        auto threadId = (*tlsit).second->threadId;
+        threadsactive = TryToCloseThread(threadId) || threadsactive;
     }
     return threadsactive;
 }
@@ -2379,24 +2384,35 @@ bool VisualLeakDetector::isFunctionIgnored(LPCWSTR functionName)
     return g_vld.m_ignoreFunctions->find(functioninfo) != g_vld.m_ignoreFunctions->end();
 }
 
-SIZE_T VisualLeakDetector::GetLeaksCount()
-{
+void PreloadSymsrvDll() {
+    HMODULE hSymsrv = LoadLibrary(L"symsrv.dll");
+    if (hSymsrv == NULL) {
+        DWORD error = GetLastError();
+        Report(L"Failed to load symsrv.dll. Error code: %lu\n", error);
+    }
+}
+
+SIZE_T VisualLeakDetector::GetLeaksCount() {
     if (m_options & VLD_OPT_VLDOFF) {
         // VLD has been turned off.
         return 0;
     }
 
+    // preloading symsrv.dll here avoids that it needs to be loaded while holding the g_heapMapLock
+    // loading a dll activates the loader lock, we don't want that while holding another lock.
+    // getLeaksCount loads that symsrv.dll when retrieving function names.
+    PreloadSymsrvDll();
+
     SIZE_T leaksCount = 0;
     // Generate a memory leak report for each heap in the process.
     CriticalSectionLocker<> cs(g_heapMapLock);
     for (HeapMap::Iterator heapit = m_heapMap->begin(); heapit != m_heapMap->end(); ++heapit) {
-        HANDLE heap = (*heapit).first;
-        UNREFERENCED_PARAMETER(heap);
         heapinfo_t* heapinfo = (*heapit).second;
         leaksCount += getLeaksCount(heapinfo);
     }
     return leaksCount;
 }
+
 
 SIZE_T VisualLeakDetector::GetThreadLeaksCount(DWORD threadId)
 {
@@ -2405,12 +2421,15 @@ SIZE_T VisualLeakDetector::GetThreadLeaksCount(DWORD threadId)
         return 0;
     }
 
+    // preloading symsrv.dll here avoids that it needs to be loaded while holding the g_heapMapLock
+    // loading a dll activates the loader lock, we don't want that while holding another lock.
+    // getLeaksCount loads that symsrv.dll when retrieving function names.
+    PreloadSymsrvDll();
+
     SIZE_T leaksCount = 0;
     // Generate a memory leak report for each heap in the process.
     CriticalSectionLocker<> cs(g_heapMapLock);
     for (HeapMap::Iterator heapit = m_heapMap->begin(); heapit != m_heapMap->end(); ++heapit) {
-        HANDLE heap = (*heapit).first;
-        UNREFERENCED_PARAMETER(heap);
         heapinfo_t* heapinfo = (*heapit).second;
         leaksCount += getLeaksCount(heapinfo, threadId);
     }
