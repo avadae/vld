@@ -69,7 +69,7 @@ jobs:
 
     - name: Test Win32
       run: |
-        cd '.\bin\tests\x64\debug(release)'
+        cd '.\bin\tests\win32\debug(release)'
         vstest.console vld_tests.dll /InIsolation /Logger:trx
         vstest.console threads.dll /InIsolation /Logger:trx
         vstest.console vld_unload.dll /InIsolation /Logger:trx
@@ -79,7 +79,8 @@ jobs:
       if: always()
       with:
         files: |
-          '.\bin\tests\x64\debug(release)\TestResults\**\*.trx'
+          'bin\tests\x64\debug(release)\TestResults\*.trx'
+          'bin\tests\win32\debug(release)\TestResults\*.trx'
         comment_mode: off
         
     - name: Create installer
