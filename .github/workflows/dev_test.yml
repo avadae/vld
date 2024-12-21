@@ -54,10 +54,9 @@ jobs:
 
     - name: Test Win64
       run: |
-        vstest.console '.\bin\tests\x64\debug(release)\vld_tests.dll' /InIsolation /Logger:trx
-        vstest.console '.\bin\tests\x64\debug(release)\threads.dll' /InIsolation /Logger:trx
-        #vstest.console '.\bin\tests\x64\debug(release)\vld_unload.dll' /InIsolation
-
+        cd '.\bin\tests\x64\debug(release)'
+        vstest.console vld_tests.dll vld_threads.dll vld_unload.dll /InIsolation /Logger:trx
+        
     - name: Build Win32 VLD
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: msbuild /m /p:Configuration="Release" /p:Platform=Win32 -target:vld ${{env.SOLUTION_FILE_PATH}}
@@ -68,9 +67,8 @@ jobs:
 
     - name: Test Win32
       run: |
-        vstest.console '.\bin\tests\win32\debug(release)\vld_tests.dll' /InIsolation /Logger:/trx
-        vstest.console '.\bin\tests\win32\debug(release)\threads.dll' /InIsolation /Logger:trx
-        #vstest.console '.\bin\tests\win32\debug(release)\vld_unload.dll' /InIsolation
+        cd '.\bin\tests\x64\debug(release)'
+        vstest.console vld_tests.dll vld_threads.dll vld_unload.dll /InIsolation /Logger:trx
 
     - name: Publish Test Results
       uses: EnricoMi/publish-unit-test-result-action/windows@v2
