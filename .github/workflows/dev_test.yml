@@ -76,9 +76,9 @@ jobs:
       if: always()
       with:
         files: |
-          test-results\**\*.xml
-          test-results\**\*.trx
-          test-results\**\*.json
+          TestResults\**\*.xml
+          TestResults\**\*.trx
+          TestResults\**\*.json
         
     - name: Create installer
       uses: Minionguyjpro/Inno-Setup-Action@v1.2.4
