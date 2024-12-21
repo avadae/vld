@@ -55,7 +55,7 @@ jobs:
       run: |
         vstest.console '.\bin\tests\x64\debug(release)\vld_tests.dll' /InIsolation
         vstest.console '.\bin\tests\x64\debug(release)\threads.dll' /InIsolation
-        #vstest.console '.\bin\tests\x64\debug(release)\vld_unload.dll' /InIsolation
+        vstest.console '.\bin\tests\x64\debug(release)\vld_unload.dll' /InIsolation
 
     - name: Build Win32 VLD
       working-directory: ${{env.GITHUB_WORKSPACE}}
@@ -69,7 +69,7 @@ jobs:
       run: |
         vstest.console '.\bin\tests\win32\debug(release)\vld_tests.dll' /InIsolation
         vstest.console '.\bin\tests\win32\debug(release)\threads.dll' /InIsolation
-        #vstest.console '.\bin\tests\win32\debug(release)\vld_unload.dll' /InIsolation
+        vstest.console '.\bin\tests\win32\debug(release)\vld_unload.dll' /InIsolation
         
     - name: Create installer
       uses: Minionguyjpro/Inno-Setup-Action@v1.2.4
