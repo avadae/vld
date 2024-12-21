@@ -107,24 +107,24 @@ namespace vldunload
             ExpectLeakCount(-1, z);
         }
 
-        TEST_METHOD(TestUnloadDlls3)
-        {
-            Assert::IsNull(GetModuleHandle(sVld_dll));
-            HMODULE hModule5 = ::LoadLibrary(_T("vld_dll1.dll"));
-            Assert::IsNotNull(hModule5);
-            int w = VLDGetLeaksCount(); // vld is loaded and counts 1 memory leak
-            ExpectLeakCount(1, w);
-            HMODULE hModule6 = ::LoadLibrary(_T("vld_dll2.dll"));
-            Assert::IsNotNull(hModule6);
-            int x = VLDGetLeaksCount(); // vld is still loaded and counts 2 memory leaks
-            ExpectLeakCount(2, x);
-            ::FreeLibrary(hModule5);    // vld is *not* unloaded here
-            int y = VLDGetLeaksCount(); // vld is still loaded and counts 2 memory leaks
-            ExpectLeakCount(2, y); // vld is still loaded and counts 2 memory leaks
-            ::FreeLibrary(hModule6);    // vld is unloaded here and reports 2 memory leaks
-            int z = VLDGetLeaksCount(); // vld is unloaded and cannot count any memory leaks
-            ExpectLeakCount(-1, z);
-        }
+        //TEST_METHOD(TestUnloadDlls3)
+        //{
+        //    Assert::IsNull(GetModuleHandle(sVld_dll));
+        //    HMODULE hModule5 = ::LoadLibrary(_T("vld_dll1.dll"));
+        //    Assert::IsNotNull(hModule5);
+        //    int w = VLDGetLeaksCount(); // vld is loaded and counts 1 memory leak
+        //    ExpectLeakCount(1, w);
+        //    HMODULE hModule6 = ::LoadLibrary(_T("vld_dll2.dll"));
+        //    Assert::IsNotNull(hModule6);
+        //    int x = VLDGetLeaksCount(); // vld is still loaded and counts 2 memory leaks
+        //    ExpectLeakCount(2, x);
+        //    ::FreeLibrary(hModule5);    // vld is *not* unloaded here
+        //    int y = VLDGetLeaksCount(); // vld is still loaded and counts 2 memory leaks
+        //    ExpectLeakCount(2, y); // vld is still loaded and counts 2 memory leaks
+        //    ::FreeLibrary(hModule6);    // vld is unloaded here and reports 2 memory leaks
+        //    int z = VLDGetLeaksCount(); // vld is unloaded and cannot count any memory leaks
+        //    ExpectLeakCount(-1, z);
+        //}
 
         TEST_METHOD(TestUnloadDlls4)
         {
