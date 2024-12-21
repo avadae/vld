@@ -53,9 +53,9 @@ jobs:
 
     - name: Test Win64
       run: |
-        vstest.console '.\bin\tests\x64\debug(release)\vld_tests.dll' /InIsolation
-        vstest.console '.\bin\tests\x64\debug(release)\threads.dll' /InIsolation
-        vstest.console '.\bin\tests\x64\debug(release)\vld_unload.dll' /InIsolation
+        vstest.console '.\bin\tests\x64\debug(release)\vld_tests.dll' /InIsolation /Logger:trx
+        vstest.console '.\bin\tests\x64\debug(release)\threads.dll' /InIsolation /Logger:trx
+        #vstest.console '.\bin\tests\x64\debug(release)\vld_unload.dll' /InIsolation
 
     - name: Build Win32 VLD
       working-directory: ${{env.GITHUB_WORKSPACE}}
@@ -67,9 +67,18 @@ jobs:
 
     - name: Test Win32
       run: |
-        vstest.console '.\bin\tests\win32\debug(release)\vld_tests.dll' /InIsolation
-        vstest.console '.\bin\tests\win32\debug(release)\threads.dll' /InIsolation
-        vstest.console '.\bin\tests\win32\debug(release)\vld_unload.dll' /InIsolation
+        vstest.console '.\bin\tests\win32\debug(release)\vld_tests.dll' /InIsolation /Logger:/trx
+        vstest.console '.\bin\tests\win32\debug(release)\threads.dll' /InIsolation /Logger:trx
+        #vstest.console '.\bin\tests\win32\debug(release)\vld_unload.dll' /InIsolation
+
+    - name: Publish Test Results
+      uses: EnricoMi/publish-unit-test-result-action/windows@v2
+      if: always()
+      with:
+        files: |
+          test-results\**\*.xml
+          test-results\**\*.trx
+          test-results\**\*.json
         
     - name: Create installer
       uses: Minionguyjpro/Inno-Setup-Action@v1.2.4
