@@ -79,9 +79,7 @@ jobs:
       if: always()
       with:
         files: |
-          TestResults\**\*.xml
-          TestResults\**\*.trx
-          TestResults\**\*.json
+          '.\bin\tests\x64\debug(release)\TestResults\**\*.trx'
         comment_mode: off
         
     - name: Create installer
