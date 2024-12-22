@@ -2297,15 +2297,6 @@ NTSTATUS VisualLeakDetector::_LdrLoadDll (LPWSTR searchpath, PULONG flags, unico
 NTSTATUS VisualLeakDetector::_LdrLoadDllWin8 (DWORD_PTR reserved, PULONG flags, unicodestring_t *modulename,
                                           PHANDLE modulehandle)
 {
-    if (modulename && modulename->buffer) {
-        // Safely output the module name.
-        Report(L"Loading %.*s via LdrLoadDllWin8\n",
-            modulename->length / sizeof(WCHAR), // Length is in bytes, divide by sizeof(WCHAR) to get character count.
-            modulename->buffer);
-    }
-    else {
-        Report(L"Loading <unknown module> via LdrLoadDllWin8\n");
-    }
     // Load the DLL
     NTSTATUS status = LdrLoadDllWin8(reserved, flags, modulename, modulehandle);
     return status;
