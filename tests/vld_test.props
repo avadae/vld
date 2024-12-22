@@ -4,6 +4,7 @@
   <PropertyGroup Label="UserMacros">
     <VldConfiguration Condition="'$(Configuration)' == 'Debug'">Debug</VldConfiguration>
     <VldConfiguration Condition="'$(Configuration)' == 'Debug(Release)'">Release</VldConfiguration>
+    <VldConfiguration Condition="'$(Configuration)' == 'Debug(Release)_StaticCRT'">Release</VldConfiguration>
     <VldConfiguration Condition="'$(Configuration)' == 'Release'">Release</VldConfiguration>
   </PropertyGroup>
   <PropertyGroup>

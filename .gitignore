@@ -2,6 +2,7 @@ obj/
 
 Debug/
 Debug(Release)/
+Debug(Release)_StaticCRT/
 Release/
 
 Win32/

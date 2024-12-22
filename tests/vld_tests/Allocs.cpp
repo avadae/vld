@@ -178,7 +178,11 @@ __declspec(noinline) void allocMalloc(bool bFree)
 #else
             "\\s+ntdll\\.dll!rtlallocateheap\\(\\)\n"
 #ifdef _DEBUG
+#ifdef _WIN64
+            "\\s+\\S+\\\\heap\\\\malloc\\.cpp \\(\\d+\\): \\w+\\.\\w+!malloc\\(\\)\n"
+#else
             "\\s+\\S+\\\\heap\\\\malloc\\.cpp \\(\\d+\\): \\w+\\.\\w+!malloc\\(\\) \\+ 0x\\S+ bytes\n"
+#endif
 #else
             "\\s+\\S+\\\\heap\\\\malloc_base\\.cpp \\(\\d+\\): \\w+\\.\\w+!_malloc_base\\(\\)\n"
 #endif
@@ -203,7 +207,11 @@ __declspec(noinline) void allocMalloc(bool bFree)
 #else
             "\\s+ntdll\\.dll!rtlallocateheap\\(\\)\n"
 #ifdef _DEBUG
+#if _WIN64
+            "\\s+\\S+\\\\heap\\\\debug_heap\\.cpp \\(\\d+\\): \\w+\\.\\w+!_malloc_dbg\\(\\)\n"
+#else
             "\\s+\\S+\\\\heap\\\\debug_heap\\.cpp \\(\\d+\\): \\w+\\.\\w+!_malloc_dbg\\(\\) \\+ 0x\\S+ bytes\n"
+#endif
 #else
             "\\s+\\S+\\\\heap\\\\malloc_base\\.cpp \\(\\d+\\): \\w+\\.\\w+!_malloc_base\\(\\)\n"
 #endif
