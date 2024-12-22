@@ -73,7 +73,7 @@ jobs:
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: msbuild /m /p:Configuration="Debug(Release)" /p:Platform=Win32 ${{env.SOLUTION_FILE_PATH}}
 
-    - name: Build Win32 Tests
+    - name: Build Win32 StaticCRT Tests
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: msbuild /m /p:Configuration="Debug(Release)_StaticCRT" /p:Platform=Win32 ${{env.SOLUTION_FILE_PATH}}
 
