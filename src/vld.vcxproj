@@ -85,7 +85,6 @@
       <WarningLevel>Level4</WarningLevel>
       <StringPooling>false</StringPooling>
       <EnablePREfast>false</EnablePREfast>
-      <DisableSpecificWarnings>4201;4229;4091;4302;4311</DisableSpecificWarnings>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
@@ -105,7 +104,6 @@
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <WarningLevel>Level4</WarningLevel>
       <StringPooling>false</StringPooling>
-      <DisableSpecificWarnings>4201;4229;4091;4302;4311</DisableSpecificWarnings>
       <EnablePREfast>false</EnablePREfast>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <TreatWarningAsError>true</TreatWarningAsError>
@@ -132,7 +130,6 @@
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <FloatingPointModel>Fast</FloatingPointModel>
       <FunctionLevelLinking>false</FunctionLevelLinking>
-      <DisableSpecificWarnings>4201;4229;4091;4302;4311</DisableSpecificWarnings>
       <EnablePREfast>false</EnablePREfast>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <WarningLevel>Level4</WarningLevel>
@@ -160,7 +157,6 @@
       <FloatingPointModel>Fast</FloatingPointModel>
       <OmitFramePointers>false</OmitFramePointers>
       <FunctionLevelLinking>false</FunctionLevelLinking>
-      <DisableSpecificWarnings>4201;4229;4091;4302;4311</DisableSpecificWarnings>
       <EnablePREfast>false</EnablePREfast>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <WarningLevel>Level4</WarningLevel>

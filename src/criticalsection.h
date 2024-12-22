@@ -3,6 +3,7 @@
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
 #include <windows.h>
+#include <assert.h>
 
 // you should consider CriticalSectionLocker<> whenever possible instead of
 // directly working with CriticalSection class - it is safer
