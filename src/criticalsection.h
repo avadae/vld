@@ -38,8 +38,11 @@ public:
 	{
 		if (m_critRegion.OwningThread == NULL)
 			return false;
-		HANDLE ownerThread = GetCurrentThread();
-		return m_critRegion.OwningThread == ownerThread;
+#pragma warning (push)
+#pragma warning (disable: 4312)
+		HANDLE ownerThreadId = (HANDLE)GetCurrentThreadId();
+		return m_critRegion.OwningThread == ownerThreadId;
+#pragma warning (pop)
 	}
 
 	// try enter the section
