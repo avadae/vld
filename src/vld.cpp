@@ -486,7 +486,7 @@ VisualLeakDetector::VisualLeakDetector ()
     */
     g_DbgHelp.SymSetOptions(SYMOPT_DEBUG | SYMOPT_UNDNAME | SYMOPT_DEFERRED_LOADS | SYMOPT_LOAD_LINES);
 #else
-    g_DbgHelp.SymSetOptions(SYMOPT_UNDNAME | SYMOPT_DEFERRED_LOADS | SYMOPT_LOAD_LINES);
+    g_DbgHelp.SymSetOptions(SYMOPT_UNDNAME | SYMOPT_LOAD_LINES);
 #endif
     DbgTrace(L"dbghelp32.dll %i: SymInitializeW\n", GetCurrentThreadId());
     if (!g_DbgHelp.SymInitializeW(g_currentProcess, symbolpath, FALSE)) {
@@ -550,20 +550,13 @@ bool VisualLeakDetector::TryToCloseThread(DWORD threadId)
     }
 
     DWORD dwExitCode;
-    if (GetExitCodeThread(hThread, &dwExitCode))
+    if (GetExitCodeThread(hThread, &dwExitCode) && dwExitCode == STILL_ACTIVE)
     {
-        if (dwExitCode == STILL_ACTIVE) {
-            Report(L"Thread %d running on process %d is still active...\n", threadId, dwProcessId);
-        }
-        else {
-            Report(L"Thread %d running on process %d has exited, Exit code %d ...\n", threadId, dwProcessId, dwExitCode);
-            CloseHandle(hThread);
-            return false;
-        }
-    }
+        Report(L"Thread %d running on process %d is still active...\n", threadId, dwProcessId);
+    }   
 
     CloseHandle(hThread);
-    return true;
+    return dwExitCode == STILL_ACTIVE;
 }
 
 bool VisualLeakDetector::waitForAllVLDThreads()
@@ -895,16 +888,16 @@ VOID VisualLeakDetector::attachToLoadedModules (ModuleSet *newmodules)
                 }
             }
         }
-        if ((moduleFlags & VLD_MODULE_EXCLUDED) == 0 &&
-            !(moduleFlags & VLD_MODULE_SYMBOLSLOADED) || (moduleimageinfo.SymType == SymExport)) {
-            // This module is going to be included in leak detection, but complete
-            // symbols for this module couldn't be loaded. This means that any stack
-            // traces through this module may lack information, like line numbers
-            // and function names.
-            Report(L"WARNING: Visual Leak Detector: A module, %s, included in memory leak detection\n"
-                L"  does not have any debugging symbols available, or they could not be located.\n"
-                L"  Function names and/or line numbers for this module may not be available.\n", modulename);
-        }
+        //if ((moduleFlags & VLD_MODULE_EXCLUDED) == 0 &&
+        //    !(moduleFlags & VLD_MODULE_SYMBOLSLOADED) || (moduleimageinfo.SymType == SymExport)) {
+        //    // This module is going to be included in leak detection, but complete
+        //    // symbols for this module couldn't be loaded. This means that any stack
+        //    // traces through this module may lack information, like line numbers
+        //    // and function names.
+        //    Report(L"WARNING: Visual Leak Detector: A module, %s, included in memory leak detection\n"
+        //        L"  does not have any debugging symbols available, or they could not be located.\n"
+        //        L"  Function names and/or line numbers for this module may not be available.\n", modulename);
+        //}
 
         // Update the module's flags in the "new modules" set.
         ModuleSet::Muterator  updateit;
@@ -2384,24 +2377,11 @@ bool VisualLeakDetector::isFunctionIgnored(LPCWSTR functionName)
     return g_vld.m_ignoreFunctions->find(functioninfo) != g_vld.m_ignoreFunctions->end();
 }
 
-void PreloadSymsrvDll() {
-    HMODULE hSymsrv = LoadLibrary(L"symsrv.dll");
-    if (hSymsrv == NULL) {
-        DWORD error = GetLastError();
-        Report(L"Failed to load symsrv.dll. Error code: %lu\n", error);
-    }
-}
-
 SIZE_T VisualLeakDetector::GetLeaksCount() {
     if (m_options & VLD_OPT_VLDOFF) {
         // VLD has been turned off.
         return 0;
     }
-
-    // preloading symsrv.dll here avoids that it needs to be loaded while holding the g_heapMapLock
-    // loading a dll activates the loader lock, we don't want that while holding another lock.
-    // getLeaksCount loads that symsrv.dll when retrieving function names.
-    PreloadSymsrvDll();
 
     SIZE_T leaksCount = 0;
     // Generate a memory leak report for each heap in the process.
@@ -2420,11 +2400,6 @@ SIZE_T VisualLeakDetector::GetThreadLeaksCount(DWORD threadId)
         // VLD has been turned off.
         return 0;
     }
-
-    // preloading symsrv.dll here avoids that it needs to be loaded while holding the g_heapMapLock
-    // loading a dll activates the loader lock, we don't want that while holding another lock.
-    // getLeaksCount loads that symsrv.dll when retrieving function names.
-    PreloadSymsrvDll();
 
     SIZE_T leaksCount = 0;
     // Generate a memory leak report for each heap in the process.
