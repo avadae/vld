@@ -37,8 +37,8 @@ public:
 	{
 		if (m_critRegion.OwningThread == NULL)
 			return false;
-		HANDLE ownerThreadId = (HANDLE)GetCurrentThreadId();
-		return m_critRegion.OwningThread == ownerThreadId;
+		HANDLE ownerThread = GetCurrentThread();
+		return m_critRegion.OwningThread == ownerThread;
 	}
 
 	// try enter the section
