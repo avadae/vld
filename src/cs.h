@@ -63,7 +63,7 @@ namespace vld
         // Check if the current thread owns the lock (non-standard utility)
         bool is_locked_by_current_thread() const noexcept
         {
-            return m_critRegion.OwningThread == reinterpret_cast<HANDLE>(GetCurrentThreadId());
+            return m_critRegion.OwningThread == GetCurrentThread();
         }
 
     private:

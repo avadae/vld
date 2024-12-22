@@ -247,6 +247,7 @@ void allocNewArray(bool bFree)
     int temp[3];
     void* place = temp;
     float* placed_mem = new (place) float[3]; // doesn't work. Nothing gets patched by vld
+    UNREFERENCED_PARAMETER(placed_mem);
     if (bFree)
     {
         delete[] leaked_memory;
@@ -357,6 +358,7 @@ void allocIMalloc(bool bFree)
     IMalloc *imalloc = NULL;
     HRESULT hr = CoGetMalloc(1, &imalloc);
     assert(SUCCEEDED(hr));
+    UNREFERENCED_PARAMETER(hr);
     int* leaked_memory = static_cast<int*>(imalloc->Alloc(34));
     if (bFree)
     {
