@@ -3,6 +3,7 @@ name: Build And Test
 on:
   push:
     branches: [ "dev", "master" ]
+    tags: '*'
   pull_request:
     branches: [ "master" ]
     
