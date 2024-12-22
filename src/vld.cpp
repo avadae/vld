@@ -550,20 +550,13 @@ bool VisualLeakDetector::TryToCloseThread(DWORD threadId)
     }
 
     DWORD dwExitCode;
-    if (GetExitCodeThread(hThread, &dwExitCode))
+    if (GetExitCodeThread(hThread, &dwExitCode) && dwExitCode == STILL_ACTIVE)
     {
-        if (dwExitCode == STILL_ACTIVE) {
-            Report(L"Thread %d running on process %d is still active...\n", threadId, dwProcessId);
-        }
-        else {
-            Report(L"Thread %d running on process %d has exited, Exit code %d ...\n", threadId, dwProcessId, dwExitCode);
-            CloseHandle(hThread);
-            return false;
-        }
-    }
+        Report(L"Thread %d running on process %d is still active...\n", threadId, dwProcessId);
+    }   
 
     CloseHandle(hThread);
-    return true;
+    return dwExitCode == STILL_ACTIVE;
 }
 
 bool VisualLeakDetector::waitForAllVLDThreads()
