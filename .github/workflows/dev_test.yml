@@ -52,12 +52,19 @@ jobs:
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: msbuild /m /p:Configuration="Debug(Release)" /p:Platform=x64 ${{env.SOLUTION_FILE_PATH}}
 
+    - name: Build Win64 StaticCRT Tests
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: msbuild /m /p:Configuration="Debug(Release)_StaticCRT" /p:Platform=x64 ${{env.SOLUTION_FILE_PATH}}
+
     - name: Test Win64
       run: |
         vstest.console '.\bin\tests\x64\debug(release)\vld_tests.dll' /InIsolation /Logger:trx
         vstest.console '.\bin\tests\x64\debug(release)\threads.dll' /InIsolation /Logger:trx
         vstest.console '.\bin\tests\x64\debug(release)\vld_unload.dll' /InIsolation /Logger:trx
-        
+        vstest.console '.\bin\tests\x64\debug(release)_staticcrt\vld_tests.dll' /InIsolation /Logger:trx
+        vstest.console '.\bin\tests\x64\debug(release)_staticcrt\threads.dll' /InIsolation /Logger:trx
+        vstest.console '.\bin\tests\x64\debug(release)_staticcrt\vld_unload.dll' /InIsolation /Logger:trx
+
     - name: Build Win32 VLD
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: msbuild /m /p:Configuration="Release" /p:Platform=Win32 -target:vld ${{env.SOLUTION_FILE_PATH}}
@@ -66,11 +73,18 @@ jobs:
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: msbuild /m /p:Configuration="Debug(Release)" /p:Platform=Win32 ${{env.SOLUTION_FILE_PATH}}
 
+    - name: Build Win32 Tests
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: msbuild /m /p:Configuration="Debug(Release)_StaticCRT" /p:Platform=Win32 ${{env.SOLUTION_FILE_PATH}}
+
     - name: Test Win32
       run: |
         vstest.console '.\bin\tests\win32\debug(release)\vld_tests.dll' /InIsolation /Logger:trx
         vstest.console '.\bin\tests\win32\debug(release)\threads.dll' /InIsolation /Logger:trx
         vstest.console '.\bin\tests\win32\debug(release)\vld_unload.dll' /InIsolation /Logger:trx
+        vstest.console '.\bin\tests\win32\debug(release)_staticcrt\vld_tests.dll' /InIsolation /Logger:trx
+        vstest.console '.\bin\tests\win32\debug(release)_staticcrt\threads.dll' /InIsolation /Logger:trx
+        vstest.console '.\bin\tests\win32\debug(release)_staticcrt\vld_unload.dll' /InIsolation /Logger:trx
 
     - name: Publish Test Results
       uses: EnricoMi/publish-unit-test-result-action/windows@v2
