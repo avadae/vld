@@ -26,7 +26,7 @@
     <WholeProgramOptimization Condition="'$(Configuration)'=='Release'">true</WholeProgramOptimization>
     <NumericPlatform Condition="'$(Platform)'=='Win32'">x86</NumericPlatform>
     <NumericPlatform Condition="'$(Platform)'=='x64'">x64</NumericPlatform>
-    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.26100.0</WindowsTargetPlatformVersion>
     <ProjectName>vld</ProjectName>
   </PropertyGroup>
   <!-- Import Default Property Sheets -->
@@ -62,14 +62,12 @@
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(SolutionDir)\lib\;$(SolutionDir)\lib\dbghelp\include;$(SolutionDir)\setup;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\setup;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <BaseAddress>0x03200000</BaseAddress>
-      <RandomizedBaseAddress>false</RandomizedBaseAddress>
-      <AdditionalLibraryDirectories>$(SolutionDir)\lib\dbghelp\lib\$(PlatformName);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>copy "$(OutDir)$(TargetName).lib" "$(OutDir)vld.lib" /y</Command>
@@ -87,7 +85,8 @@
       <WarningLevel>Level4</WarningLevel>
       <StringPooling>false</StringPooling>
       <EnablePREfast>false</EnablePREfast>
-      <DisableSpecificWarnings>4201;4229;4091;4302;4311;4312;4127</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4201;4229;4091;4302;4311;4312;4127;4996</DisableSpecificWarnings>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <AdditionalDependencies>Onecore.lib;psapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -105,8 +104,9 @@
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <WarningLevel>Level4</WarningLevel>
       <StringPooling>false</StringPooling>
-      <DisableSpecificWarnings>4201;4229;4091;4302;4311;4312;4127</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4201;4229;4091;4302;4311;4312;4127;4996</DisableSpecificWarnings>
       <EnablePREfast>false</EnablePREfast>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <AdditionalDependencies>Onecore.lib;psapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -130,8 +130,9 @@
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <FloatingPointModel>Fast</FloatingPointModel>
       <FunctionLevelLinking>false</FunctionLevelLinking>
-      <DisableSpecificWarnings>4201;4229;4091;4302;4311;4312;4127</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4201;4229;4091;4302;4311;4312;4127;4996</DisableSpecificWarnings>
       <EnablePREfast>false</EnablePREfast>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <OptimizeReferences>true</OptimizeReferences>
@@ -155,8 +156,9 @@
       <FloatingPointModel>Fast</FloatingPointModel>
       <OmitFramePointers>false</OmitFramePointers>
       <FunctionLevelLinking>false</FunctionLevelLinking>
-      <DisableSpecificWarnings>4201;4229;4091;4302;4311;4312;4127</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4201;4229;4091;4302;4311;4312;4127;4996</DisableSpecificWarnings>
       <EnablePREfast>false</EnablePREfast>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <OptimizeReferences>true</OptimizeReferences>
@@ -189,7 +191,8 @@
     <ClInclude Include="callstack.h" />
     <ClInclude Include="criticalsection.h" />
     <ClInclude Include="crtmfcpatch.h" />
-    <ClInclude Include="dbghelp.h" />
+    <ClInclude Include="cs.h" />
+    <ClInclude Include="vld_dbghelp.h" />
     <ClInclude Include="map.h" />
     <ClInclude Include="ntapi.h" />
     <ClInclude Include="resource.h" />
@@ -209,11 +212,6 @@
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="vld.natvis" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\lib\cppformat\format.vcxproj">
-      <Project>{4adfd279-56c6-4b1d-ba9e-b815e81c1b17}</Project>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -434,8 +434,8 @@ begin
   Path := GetEnv('LOCALAPPDATA')+'\Microsoft\MSBuild\v4.0\';
   if DirExists(Path) then
   begin
-    ModifyProps(Path + 'Microsoft.Cpp.Win32.user.props', 'Win32');
-    ModifyProps(Path + 'Microsoft.Cpp.x64.user.props', 'Win64');
+    ModifyProps(Path + 'Microsoft.Cpp.Win32.user.props', 'Win$(PlatformArchitecture)');
+    ModifyProps(Path + 'Microsoft.Cpp.x64.user.props', 'Win$(PlatformArchitecture)');
   end;
 end;
 

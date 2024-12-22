@@ -10,3 +10,13 @@ I maintain this fork to be used by students at [Hogeschool West-Vlaanderen in th
 ## Documentation
 
 Read the documentation at [https://github.com/KindDragon/vld/wiki](https://github.com/KindDragon/vld/wiki)
+
+## Updating dbghelp.dll
+
+If you want to update the version of DbgHelp.dll in the project
+
+- [Install the desired Windows SDK version.](https://developer.microsoft.com/en-us/windows/downloads/sdk-archive/)
+- Copy dbghelp.dll from ```C:\Program Files (x86)\Windows Kits\10\Debuggers\x64``` to ```vld\setup\dbghelp\x64```
+- Copy dbghelp.dll from ```C:\Program Files (x86)\Windows Kits\10\Debuggers\x86``` to ```vld\setup\dbghelp\x86```
+- Update the version number in the manifest files in those folders
+- Important: update the version number in the two dependency manifest files in ```vld\src```

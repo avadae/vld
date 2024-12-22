@@ -1238,7 +1238,7 @@ static const DWORD crctab[256] = {
 
 DWORD CalculateCRC32(UINT_PTR p, UINT startValue)
 {
-    register DWORD hash = startValue;
+    DWORD hash = startValue;
     hash = (hash >> 8) ^ crctab[(hash & 0xff) ^ ((p >>  0) & 0xff)];
     hash = (hash >> 8) ^ crctab[(hash & 0xff) ^ ((p >>  8) & 0xff)];
     hash = (hash >> 8) ^ crctab[(hash & 0xff) ^ ((p >> 16) & 0xff)];
@@ -1283,19 +1283,22 @@ HMODULE GetCallingModule(UINT_PTR pCaller )
 {
     HMODULE hModule = NULL;
 
+#ifdef WIN64
+    WIN32_MEMORY_REGION_INFORMATION memoryRegionInfo;
+    if ( QueryVirtualMemoryInformation(GetCurrentProcess(), (LPCVOID)pCaller, MemoryRegionInfo, &memoryRegionInfo, sizeof(memoryRegionInfo), NULL) )
+    {
+        // the allocation base is the beginning of a PE file
+        hModule = (HMODULE)memoryRegionInfo.AllocationBase;
+    }
+#else
     MEMORY_BASIC_INFORMATION mbi;
     if (VirtualQuery((LPCVOID)pCaller, &mbi, sizeof(MEMORY_BASIC_INFORMATION)) == sizeof(MEMORY_BASIC_INFORMATION))
     {
         // the allocation base is the beginning of a PE file
         hModule = (HMODULE)mbi.AllocationBase;
     }
+#endif
 
-    //WIN32_MEMORY_REGION_INFORMATION memoryRegionInfo;
-    //if ( QueryVirtualMemoryInformation(GetCurrentProcess(), (LPCVOID)pCaller, MemoryRegionInfo, &memoryRegionInfo, sizeof(memoryRegionInfo), NULL) )
-    //{
-    //    // the allocation base is the beginning of a PE file
-    //    hModule = (HMODULE)memoryRegionInfo.AllocationBase;
-    //}
     return hModule;
 }
 
