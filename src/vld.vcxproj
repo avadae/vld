@@ -87,6 +87,7 @@
       <EnablePREfast>false</EnablePREfast>
       <DisableSpecificWarnings>4201;4229;4091;4302;4311;4312;4127;4996</DisableSpecificWarnings>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
     <Link>
       <AdditionalDependencies>Onecore.lib;psapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -107,6 +108,7 @@
       <DisableSpecificWarnings>4201;4229;4091;4302;4311;4312;4127;4996</DisableSpecificWarnings>
       <EnablePREfast>false</EnablePREfast>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
     <Link>
       <AdditionalDependencies>Onecore.lib;psapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -133,6 +135,8 @@
       <DisableSpecificWarnings>4201;4229;4091;4302;4311;4312;4127;4996</DisableSpecificWarnings>
       <EnablePREfast>false</EnablePREfast>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <WarningLevel>Level4</WarningLevel>
+      <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
     <Link>
       <OptimizeReferences>true</OptimizeReferences>
@@ -159,6 +163,8 @@
       <DisableSpecificWarnings>4201;4229;4091;4302;4311;4312;4127;4996</DisableSpecificWarnings>
       <EnablePREfast>false</EnablePREfast>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <WarningLevel>Level4</WarningLevel>
+      <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
     <Link>
       <OptimizeReferences>true</OptimizeReferences>

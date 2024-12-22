@@ -1182,6 +1182,7 @@ VOID VisualLeakDetector::configure ()
     }
     WCHAR* path = _wfullpath(m_reportFilePath, filename, MAX_PATH);
     assert(path);
+    UNREFERENCED_PARAMETER(path);
 
     LoadStringOption(L"ReportTo", buffer, buffersize, inipath);
     if (_wcsicmp(buffer, L"both") == 0) {
@@ -2837,7 +2838,8 @@ const wchar_t* VisualLeakDetector::GetAllocationResolveResults(void* alloc, BOOL
     if (info != NULL)
     {
         int unresolvedFunctionsCount = info->callStack->resolve(showInternalFrames);
-        _ASSERT(unresolvedFunctionsCount == 0);
+        assert(unresolvedFunctionsCount == 0);
+        UNREFERENCED_PARAMETER(unresolvedFunctionsCount);
         return info->callStack->getResolvedCallstack(showInternalFrames);
     }
     return NULL;
@@ -2852,20 +2854,15 @@ int VisualLeakDetector::resolveStacks(heapinfo_t* heapinfo)
         // Found a block which is still in the BlockMap. We've identified a
         // potential memory leak.
         const void* block   = (*blockit).first;
+        assert(block != NULL);
+
         blockinfo_t* info   = (*blockit).second;
         assert(info);
         if (info == NULL)
-        {
             continue;
-        }
 
-        if (info->reported) {
+        if (info->reported)
             continue;
-        }
-
-        // The actual memory address
-        const void* address = block;
-        assert(address != NULL);
 
         if (isDebugCrtAlloc(block, info)) {
             // This block is allocated to a CRT heap, so the block has a CRT

@@ -380,6 +380,7 @@ void ConvertModulePathToAscii( LPCWSTR modulename, LPSTR * modulenamea )
 
 	int count = ::WideCharToMultiByte(CP_ACP, 0/*flags*/, modulename, (int)-1, *modulenamea, (int)length, &defaultChar, &defaultCharUsed);
 	assert(count != 0);
+    UNREFERENCED_PARAMETER(count);
 	if ( defaultCharUsed )
 	{
 		::OutputDebugStringW(__FILEW__ L": " __FUNCTIONW__ L" - defaultChar was used while conversion from \"");
