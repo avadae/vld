@@ -110,10 +110,3 @@ jobs:
         name: Installer
         path: ./setup/Output/vld-${{ env.GitVersion_MajorMinorPatch }}-setup.exe
         retention-days: 1
-        
-    - name: Upload zip archive
-      uses: actions/upload-artifact@v4
-      with:
-        name: VLD-Release
-        path: release/vld-${{ env.GitVersion_MajorMinorPatch }}.zip
-        retention-days: 1
