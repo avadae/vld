@@ -104,9 +104,33 @@ jobs:
         path: ./setup/vld-setup.iss
         options: /V0 /O+ /DMyAppVersion=${{ env.GitVersion_MajorMinorPatch }}
 
+    - name: Create zip archive
+      run: |
+        mkdir -p release
+        powershell Compress-Archive -Path `
+          bin/x64/Release/vld_x64.dll, `
+          bin/x64/Release/vld_x64.pdb, `
+          bin/x64/Release/vld.lib, `
+          bin/Win32/Release/vld_x86.dll, `
+          bin/Win32/Release/vld_x86.pdb, `
+          bin/Win32/Release/vld.lib, `
+          vld.ini, `
+          setup/dbghelp/x64/*, `
+          setup/dbghelp/x86/*, `
+          src/vld.h, `
+          src/vld_def.h `
+          -DestinationPath release/vld-${{ env.GitVersion_MajorMinorPatch }}.zip
+
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
         name: Installer
         path: ./setup/Output/vld-${{ env.GitVersion_MajorMinorPatch }}-setup.exe
+        retention-days: 1
+        
+    - name: Upload zip archive
+      uses: actions/upload-artifact@v4
+      with:
+        name: VLD-Release
+        path: release/vld-${{ env.GitVersion_MajorMinorPatch }}.zip
         retention-days: 1
