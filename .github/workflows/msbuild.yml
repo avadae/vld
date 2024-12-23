@@ -104,30 +104,6 @@ jobs:
         path: ./setup/vld-setup.iss
         options: /V0 /O+ /DMyAppVersion=${{ env.GitVersion_MajorMinorPatch }}
 
-    - name: Prepare files for zip
-      run: |
-        mkdir -p temp/lib/Win64
-        mkdir -p temp/lib/Win32
-        mkdir -p temp/include
-        cp bin/x64/Release/vld_x64.dll temp/lib/Win64/
-        cp bin/x64/Release/vld_x64.pdb temp/lib/Win64/
-        cp bin/x64/Release/vld.lib temp/lib/Win64/
-        cp vld.ini temp/lib/Win64/
-        cp setup/dbghelp/x64/dbghelp.dll temp/lib/Win64/
-        cp setup/dbghelp/x64/Microsoft.DTfW.DHL.manifest temp/lib/Win64/
-        cp bin/Win32/Release/vld_x86.dll temp/lib/Win32/
-        cp bin/Win32/Release/vld_x86.pdb temp/lib/Win32/
-        cp bin/Win32/Release/vld.lib temp/lib/Win32/
-        cp vld.ini temp/lib/Win32/
-        cp setup/dbghelp/x86/dbghelp.dll temp/lib/Win32/
-        cp setup/dbghelp/x86/Microsoft.DTfW.DHL.manifest temp/lib/Win32/
-        cp src/vld.h temp/include/
-        cp src/vld_def.h temp/include/
-
-    - name: Create zip archive
-      run: |
-        powershell Compress-Archive -Path temp/* -DestinationPath release/vld-${{ env.GitVersion_MajorMinorPatch }}.zip
-
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
