@@ -12,7 +12,7 @@ static const TCHAR* sVld_dll = _T("vld_x64.dll");
 static const TCHAR* sVld_dll = _T("vld_x86.dll");
 #endif
 
-UINT VLDGetLeaksCount()
+LONG VLDGetLeaksCount()
 {
     HMODULE vld_module = GetModuleHandle(sVld_dll);
     if (vld_module != NULL) {
@@ -26,7 +26,7 @@ UINT VLDGetLeaksCount()
     return -1;
 }
 
-UINT VLDReportLeaks()
+LONG VLDReportLeaks()
 {
     HMODULE vld_module = GetModuleHandle(sVld_dll);
     if (vld_module != NULL)
@@ -147,15 +147,11 @@ namespace vldunload
             ExpectLeakCount(1, w);
             // pGetProcAddress2 resolves to vld_xXX.dll!VisualLeakDetector::_GetProcAddress()
             GetProcAddress_t pGetProcAddress2 = GetProcAddress;
-        
+            Assert::AreNotEqual((void*)pGetProcAddress1, (void*)pGetProcAddress2);
+
             ::FreeLibrary(hModule7);    // vld is unloaded here and reports the memory leak
             int x = VLDGetLeaksCount(); // vld is unloaded and cannot count any memory leaks
             ExpectLeakCount(-1, x);
-            //assert(pGetProcAddress1 == pGetProcAddress2);
-            //GetProcAddress_t pGetProcAddress3 = (GetProcAddress_t)pGetProcAddress1(kernel32, "GetProcAddress");
-        
-            // Following line raises 0xC0000005: Access violation exception
-            //GetProcAddress_t pGetProcAddress4 = (GetProcAddress_t)pGetProcAddress2(kernel32, "GetProcAddress");
         }
     };
 }

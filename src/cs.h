@@ -63,7 +63,9 @@ namespace vld
         // Check if the current thread owns the lock (non-standard utility)
         bool is_locked_by_current_thread() const noexcept
         {
-            return m_critRegion.OwningThread == GetCurrentThread();
+            // yes, it needs to be compared with the id and not the handle: 
+            // https://stackoverflow.com/questions/12675301/why-is-the-owningthread-member-of-critical-section-of-type-handle-when-it-is-de
+            return m_critRegion.OwningThread == (HANDLE)GetCurrentThreadId();
         }
 
     private:

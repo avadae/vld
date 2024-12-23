@@ -38,6 +38,9 @@ public:
 	{
 		if (m_critRegion.OwningThread == NULL)
 			return false;
+
+		// yes, it needs to be compared with the id and not the handle: 
+		// https://stackoverflow.com/questions/12675301/why-is-the-owningthread-member-of-critical-section-of-type-handle-when-it-is-de
 #pragma warning (push)
 #pragma warning (disable: 4312)
 		HANDLE ownerThreadId = (HANDLE)GetCurrentThreadId();
