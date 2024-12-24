@@ -11,12 +11,8 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
-# Add include directories
-include_directories(${CMAKE_SOURCE_DIR}/src)
-include_directories(${CMAKE_SOURCE_DIR}/setup)
-
-# Add source files
-set(SOURCES
+# Add the library target
+add_library(vld SHARED
     src/callstack.cpp
     src/dllspatches.cpp
     src/ntapi.cpp
@@ -28,8 +24,11 @@ set(SOURCES
     src/vldheap.cpp
 )
 
-# Add the library target
-add_library(vld SHARED ${SOURCES})
+# Add include directories
+target_include_directories(vld PRIVATE
+    ${CMAKE_SOURCE_DIR}/src
+    ${CMAKE_SOURCE_DIR}/setup
+)
 
 # Set properties for the library
 set_target_properties(vld PROPERTIES
