@@ -26,8 +26,8 @@ add_library(vld SHARED
 
 # Add include directories
 target_include_directories(vld PRIVATE
-    ${CMAKE_SOURCE_DIR}/src
-    ${CMAKE_SOURCE_DIR}/setup
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${CMAKE_CURRENT_SOURCE_DIR}/setup
 )
 
 # Set properties for the library
@@ -62,7 +62,6 @@ if(CMAKE_SOURCE_DIR STREQUAL PROJECT_SOURCE_DIR)
     install(FILES
         src/vld.h
         src/vld_def.h
-        setup/version.h
         DESTINATION include
     )
 
