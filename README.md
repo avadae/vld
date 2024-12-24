@@ -9,7 +9,31 @@ I maintain this fork to be used by students at [Hogeschool West-Vlaanderen in th
 
 ## Documentation
 
-Read the documentation at [https://github.com/KindDragon/vld/wiki](https://github.com/KindDragon/vld/wiki)
+Find the original documentation at [https://github.com/KindDragon/vld/wiki](https://github.com/KindDragon/vld/wiki) however it is outdated.
+
+## Using VLD in Cmake projects
+
+Starting version 2.5.11 you can easily use vld in cmake configured projects. Install VLD as usual. Then in your CMakeLists.txt you can write
+
+```
+find_package(VLD CONFIG)
+
+target_include_directories(your_target PRIVATE ${VLD_INCLUDE_DIRS})
+target_link_libraries(your_target PRIVATE ${VLD_LIBRARIES})
+```
+
+In your main.cpp (or other initial file for your exe/dll) add
+
+```
+#if _DEBUG
+#if __has_include(<vld.h>)
+#include <vld.h>
+#endif
+#endif
+```
+
+And you're good to go! If VLD is installed the project will be checked for leaks, if not the project still builds, it just won't leak detection.
+
 
 ## Updating dbghelp.dll
 
@@ -20,3 +44,4 @@ If you want to update the version of DbgHelp.dll in the project
 - Copy dbghelp.dll from ```C:\Program Files (x86)\Windows Kits\10\Debuggers\x86``` to ```vld\setup\dbghelp\x86```
 - Update the version number in the manifest files in those folders
 - Important: update the version number in the two dependency manifest files in ```vld\src```
+
