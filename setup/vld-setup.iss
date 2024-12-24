@@ -63,6 +63,7 @@ Source: "..\CHANGES.txt"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\COPYING.txt"; DestDir: "{app}"; Flags: ignoreversion
 Source: "Microsoft.Cpp.Win32.user.props"; DestDir: "{localappdata}\Microsoft\MSBuild\v4.0\"; Flags: onlyifdoesntexist uninsneveruninstall
 Source: "Microsoft.Cpp.x64.user.props"; DestDir: "{localappdata}\Microsoft\MSBuild\v4.0\"; Flags: onlyifdoesntexist uninsneveruninstall
+Source: "VLDConfig.cmake"; DestDir: "{app}\cmake"; Flags: ignoreversion
 
 [Tasks]
 Name: "modifypath"; Description: "Add VLD directory to your environmental path"
@@ -73,6 +74,8 @@ Name: "modifyVS2010Props"; Description: "Add VLD directory to VS 2010 - VS 2022"
 UseRelativePaths=True
 
 [Registry]
+Root: "HKLM32"; Subkey: "Software\Kitware\CMake\Packages\VLD"; ValueType: string; ValueName: "Path"; ValueData: "{app}\cmake"; Flags: uninsdeletevalue
+
 Root: "HKLM32"; Subkey: "{#MyAppRegKey}"; Flags: uninsdeletekeyifempty
 Root: "HKLM32"; Subkey: "{#MyAppRegKey}"; ValueType: string; ValueName: "InstalledVersion"; ValueData: "{#MyAppVersion}"
 Root: "HKLM32"; Subkey: "{#MyAppRegKey}"; ValueType: string; ValueName: "InstallPath"; ValueData: "{app}"
