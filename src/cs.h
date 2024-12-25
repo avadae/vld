@@ -1,5 +1,6 @@
 #pragma once
 
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <cassert>
 
@@ -73,28 +74,28 @@ namespace vld
     };
 
     // RAII-based locker for CriticalSection
-    class scoped_lock
+    class cs_lock
     {
     public:
-        explicit scoped_lock(criticalsection& critSection) noexcept
+        explicit cs_lock(criticalsection& critSection) noexcept
             : m_critSection(critSection), m_locked(true)
         {
             m_critSection.lock();
         }
 
         // Deleted copy constructor and copy assignment operator
-        scoped_lock(const scoped_lock&) = delete;
-        scoped_lock& operator=(const scoped_lock&) = delete;
+        cs_lock(const cs_lock&) = delete;
+        cs_lock& operator=(const cs_lock&) = delete;
 
         // Allow move semantics
-        scoped_lock(scoped_lock&& other) noexcept
+        cs_lock(cs_lock&& other) noexcept
             : m_critSection(other.m_critSection), m_locked(other.m_locked)
         {
             other.m_locked = false;
         }
 
         // Destructor: Automatically releases the lock if still held
-        ~scoped_lock() noexcept
+        ~cs_lock() noexcept
         {
             if (m_locked)
             {
