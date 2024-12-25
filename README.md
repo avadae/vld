@@ -32,7 +32,7 @@ In your main.cpp (or other initial file for your exe/dll) add
 #endif
 ```
 
-And you're good to go! If VLD is installed the project will be checked for leaks, if not the project still builds, it just won't leak detection.
+And you're good to go! If VLD is installed the project will be checked for leaks. If VLD is not installed the project still builds and leaks will be undetected.
 
 
 ## Updating dbghelp.dll

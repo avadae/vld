@@ -2941,6 +2941,9 @@ CaptureContext::~CaptureContext() {
 
     if ((m_tls->blockWithoutGuard) && (!IsExcludedModule())) {
         blockinfo_t* pblockInfo = NULL;
+        CallStack* callstack = CallStack::Create();
+        callstack->getStackTrace(g_vld.m_maxTraceFrames, m_tls->context);
+
         if (m_tls->newBlockWithoutGuard == NULL) {
             g_vld.mapBlock(m_tls->heap,
                 m_tls->blockWithoutGuard,
@@ -2961,8 +2964,6 @@ CaptureContext::~CaptureContext() {
                 pblockInfo, m_tls->context);
         }
 
-        CallStack* callstack = CallStack::Create();
-        callstack->getStackTrace(g_vld.m_maxTraceFrames, m_tls->context);
         pblockInfo->callStack.reset(callstack);
     }
 
