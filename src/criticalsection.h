@@ -13,14 +13,7 @@ namespace vld
     public:
         criticalsection() noexcept
         {
-            __try
-            {
-                InitializeCriticalSection(&m_critRegion);
-            }
-            __except (GetExceptionCode() == STATUS_NO_MEMORY ? EXCEPTION_EXECUTE_HANDLER : EXCEPTION_CONTINUE_SEARCH)
-            {
-                assert(false && "Failed to initialize critical section due to insufficient memory.");
-            }
+            InitializeCriticalSection(&m_critRegion);
         }
 
         ~criticalsection() noexcept
@@ -48,11 +41,6 @@ namespace vld
             LeaveCriticalSection(&m_critRegion);
         }
 
-        bool is_locked() const noexcept
-        {
-            return m_critRegion.OwningThread != nullptr;
-        }
-
         bool is_locked_by_current_thread() const noexcept
         {
             // yes, it needs to be compared with the id and not the handle: 
@@ -61,6 +49,8 @@ namespace vld
         }
 
     private:
+		// see this discussion on using std::mutex, CRITICAL_SECTION, and SRWLOCK:
+        // https://stoyannk.wordpress.com/2016/04/30/msvc-mutex-is-slower-than-you-might-expect/
         CRITICAL_SECTION m_critRegion;
     };
 }

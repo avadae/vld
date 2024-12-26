@@ -37,7 +37,6 @@
 #include "vldint.h"      // Provides access to the Visual Leak Detector internals.
 #include "loaderlock.h"
 #include "tchar.h"
-#include "criticalsection.h"
 
 #define BLOCK_MAP_RESERVE   64  // This should strike a balance between memory use and a desire to minimize heap hits.
 #define HEAP_MAP_RESERVE    2   // Usually there won't be more than a few heaps in the process, so this should be small.
