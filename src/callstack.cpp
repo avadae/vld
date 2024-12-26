@@ -818,7 +818,7 @@ VOID SafeCallStack::getStackTrace (UINT32 maxdepth, const context_t& context)
     frame.AddrFrame.Mode      = AddrModeFlat;
     frame.Virtual             = TRUE;
 
-    vld::cs_lock lock(g_vld.GetHeapMapLock());
+    std::scoped_lock lock(g_vld.GetHeapMapLock());
     CriticalSectionLocker<DbgHelp> locker(g_DbgHelp);
 
     // Walk the stack.

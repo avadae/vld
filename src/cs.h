@@ -62,45 +62,4 @@ namespace vld
     private:
         CRITICAL_SECTION m_critRegion;
     };
-
-    // RAII-based locker for criticalsection
-    class cs_lock
-    {
-    public:
-        explicit cs_lock(criticalsection& critSection) noexcept
-            : m_critSection(critSection), m_locked(true)
-        {
-            m_critSection.lock();
-        }
-
-        cs_lock(const cs_lock&) = delete;
-        cs_lock& operator=(const cs_lock&) = delete;
-
-        cs_lock(cs_lock&& other) noexcept
-            : m_critSection(other.m_critSection), m_locked(other.m_locked)
-        {
-            other.m_locked = false;
-        }
-
-        ~cs_lock() noexcept
-        {
-            if (m_locked)
-            {
-                m_critSection.unlock();
-            }
-        }
-
-        void unlock() noexcept
-        {
-            if (m_locked)
-            {
-                m_critSection.unlock();
-                m_locked = false;
-            }
-        }
-
-    private:
-        criticalsection& m_critSection;
-        bool m_locked;
-    };
 }
