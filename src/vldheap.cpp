@@ -135,9 +135,9 @@ void operator delete [] (void *block, const char *, int)
 //  the VLD's private heap. Wrapping this inside a function ensures that the mutex
 //  is initialized before it is used, but not during static initialization of the   
 //  entire program.
-std::mutex& get_heap_mutex()
+vld::criticalsection& get_heap_mutex()
 {
-    static std::mutex heap_mutex;
+    static vld::criticalsection heap_mutex;
     return heap_mutex;
 }
 

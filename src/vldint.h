@@ -392,8 +392,8 @@ private:
     ModuleSet           *m_loadedModules;     // Contains information about all modules loaded in the process.
     SIZE_T               m_maxDataDump;       // Maximum number of user-data bytes to dump for each leaked block.
     UINT32               m_maxTraceFrames;    // Maximum number of frames per stack trace for each leaked block.
-    std::mutex           m_loadedModulesMutex;// Protects accesses to the "loaded modules" ModuleSet.
-    std::mutex           m_optionsLock;       // Serializes access to the configuration options.
+    vld::criticalsection m_loadedModulesMutex;// Protects accesses to the "loaded modules" ModuleSet.
+    vld::criticalsection m_optionsLock;       // Serializes access to the configuration options.
     UINT32               m_options;           // Configuration options.
     IgnoreFunctionsSet   *m_ignoreFunctions;   // Contains information about all the functions that needs to be ignored.
 
@@ -412,7 +412,7 @@ private:
 #define VLD_STATUS_NEVER_ENABLED        0x4   //   If set, VLD started disabled, and has not yet been manually enabled.
 #define VLD_STATUS_FORCE_REPORT_TO_FILE 0x8   //   If set, the leak report is being forced to a file.
     DWORD                m_tlsIndex;          // Thread-local storage index.
-    std::mutex           m_tlsLock;           // Protects accesses to the Set of TLS structures.
+    vld::criticalsection m_tlsLock;           // Protects accesses to the Set of TLS structures.
     TlsMap              *m_tlsMap;            // Set of all thread-local storage structures for the process.
     HMODULE              m_vldBase;           // Visual Leak Detector's own module handle (base address).
     HMODULE              m_dbghlpBase;
