@@ -27,11 +27,12 @@
 #include "utility.h"    // Provides various utility functions.
 #include "vldheap.h"    // Provides internal new and delete operators.
 #include "vldint.h"     // Provides access to VLD internals.
+#include "cs.h"
 
 // Imported global variables.
 extern HANDLE             g_currentProcess;
 extern HANDLE             g_currentThread;
-extern CriticalSection    g_heapMapLock;
+extern vld::criticalsection g_heapMapLock;
 extern VisualLeakDetector g_vld;
 extern DbgHelp g_DbgHelp;
 
@@ -818,7 +819,7 @@ VOID SafeCallStack::getStackTrace (UINT32 maxdepth, const context_t& context)
     frame.AddrFrame.Mode      = AddrModeFlat;
     frame.Virtual             = TRUE;
 
-    CriticalSectionLocker<> cs(g_heapMapLock);
+    vld::cs_lock lock(g_heapMapLock);
     CriticalSectionLocker<DbgHelp> locker(g_DbgHelp);
 
     // Walk the stack.

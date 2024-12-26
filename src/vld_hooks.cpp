@@ -37,9 +37,10 @@
 #include "vldheap.h"     // Provides internal new and delete operators.
 #include "vldint.h"      // Provides access to the Visual Leak Detector internals.
 #include "loaderlock.h"
+#include "cs.h"
 
 extern HANDLE           g_currentProcess;
-extern CriticalSection  g_heapMapLock;
+extern vld::criticalsection  g_heapMapLock;
 extern DbgHelp g_DbgHelp;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -65,7 +66,7 @@ HANDLE VisualLeakDetector::_GetProcessHeap()
     // Get the process heap.
     HANDLE heap = m_GetProcessHeap();
 
-    CriticalSectionLocker<> cs(g_heapMapLock);
+    vld::cs_lock lock(g_heapMapLock);
     HeapMap::Iterator heapit = g_vld.m_heapMap->find(heap);
     if (heapit == g_vld.m_heapMap->end())
     {
@@ -96,13 +97,8 @@ HANDLE VisualLeakDetector::_HeapCreate (DWORD options, SIZE_T initsize, SIZE_T m
     // Create the heap.
     HANDLE heap = m_HeapCreate(options, initsize, maxsize);
 
-    CriticalSectionLocker<> cs(g_heapMapLock);
-
     // Map the created heap handle to a new block map.
     g_vld.mapHeap(heap);
-
-    HeapMap::Iterator heapit = g_vld.m_heapMap->find(heap);
-    assert(heapit != g_vld.m_heapMap->end());
 
     return heap;
 }
