@@ -45,7 +45,6 @@
 #include "set.h"        // Provides a custom STL-like set template.
 #include "utility.h"    // Provides miscellaneous utility functions.
 #include "vldallocator.h"   // Provides internal allocator.
-#include "cs.h"
 
 #define MAXMODULELISTLENGTH 512     // Maximum module list length, in characters.
 #define MAXIGNOREFUNCTIONLISTLENGTH 2048     // Maximum module list length, in characters.

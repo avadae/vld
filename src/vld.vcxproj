@@ -193,7 +193,6 @@
     <ClInclude Include="callstack.h" />
     <ClInclude Include="criticalsection.h" />
     <ClInclude Include="crtmfcpatch.h" />
-    <ClInclude Include="cs.h" />
     <ClInclude Include="vld_dbghelp.h" />
     <ClInclude Include="map.h" />
     <ClInclude Include="ntapi.h" />

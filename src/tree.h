@@ -30,7 +30,6 @@ Applications should never include this header."
 #endif
 
 #include "vldheap.h" // Provides internal new and delete operators.
-#include "cs.h"
 
 #define TREE_DEFAULT_RESERVE 32 // By default, trees reserve enough space, in advance, for this many nodes.
 

@@ -37,7 +37,6 @@
 #include "vldheap.h"     // Provides internal new and delete operators.
 #include "vldint.h"      // Provides access to the Visual Leak Detector internals.
 #include "loaderlock.h"
-#include "cs.h"
 
 extern HANDLE           g_currentProcess;
 extern vld::criticalsection  g_heapMapLock;

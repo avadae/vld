@@ -27,7 +27,6 @@
 #include "utility.h"    // Provides various utility functions.
 #include "vldheap.h"    // Provides internal new and delete operators.
 #include "vldint.h"     // Provides access to VLD internals.
-#include "cs.h"
 
 // Imported global variables.
 extern HANDLE             g_currentProcess;
@@ -225,7 +224,7 @@ wchar_t* formatHexAddress(wchar_t* buffer, size_t bufferSize, SIZE_T address) {
 }
 
 LPCWSTR CallStack::getFunctionName(SIZE_T programCounter, DWORD64& displacement64,
-    SYMBOL_INFO* functionInfo, CriticalSectionLocker<DbgHelp>& locker) const
+    SYMBOL_INFO* functionInfo, std::scoped_lock<DbgHelp>& locker) const
 {
     // Initialize structures passed to the symbol handler.
     functionInfo->SizeOfStruct = sizeof(SYMBOL_INFO);
@@ -332,7 +331,7 @@ bool CallStack::isCrtStartupAlloc()
     sourceInfo.SizeOfStruct = sizeof(IMAGEHLP_LINE64);
 
     BYTE symbolBuffer[sizeof(SYMBOL_INFO) + MAX_SYMBOL_NAME_SIZE] = { 0 };
-    CriticalSectionLocker<DbgHelp> locker(g_DbgHelp);
+    std::scoped_lock<DbgHelp> locker(g_DbgHelp);
 
     // Iterate through each frame in the call stack.
     for (UINT32 frame = 0; frame < m_size; frame++) {
@@ -432,7 +431,7 @@ int CallStack::resolve(BOOL showInternalFrames)
     static WCHAR stack_line[MAXREPORTLENGTH + 1] = L"";
     bool isPrevFrameInternal = false;
     DWORD NumChars = 0;
-    CriticalSectionLocker<DbgHelp> locker(g_DbgHelp);
+    std::scoped_lock<DbgHelp> locker(g_DbgHelp);
 
     const size_t max_line_length = MAXREPORTLENGTH + 1;
     m_resolvedCapacity = m_size * max_line_length;
@@ -818,15 +817,14 @@ VOID SafeCallStack::getStackTrace (UINT32 maxdepth, const context_t& context)
     frame.AddrFrame.Mode      = AddrModeFlat;
     frame.Virtual             = TRUE;
 
-    std::scoped_lock lock(g_vld.GetHeapMapLock());
-    CriticalSectionLocker<DbgHelp> locker(g_DbgHelp);
+    std::scoped_lock<vld::criticalsection, DbgHelp> lock(g_vld.GetHeapMapLock(), g_DbgHelp);
 
     // Walk the stack.
     while (count < maxdepth) {
         count++;
         DbgTrace(L"dbghelp32.dll %i: StackWalk64\n", GetCurrentThreadId());
         if (!g_DbgHelp.StackWalk64(architecture, g_currentProcess, g_currentThread, &frame, &currentContext, NULL,
-            SymFunctionTableAccess64, SymGetModuleBase64, NULL, locker)) {
+            SymFunctionTableAccess64, SymGetModuleBase64, NULL)) {
                 // Couldn't trace back through any more frames.
                 break;
         }

@@ -38,8 +38,6 @@
 #include "loaderlock.h"
 #include "tchar.h"
 #include "criticalsection.h"
-#include "cs.h"
-#include <mutex>
 
 #define BLOCK_MAP_RESERVE   64  // This should strike a balance between memory use and a desire to minimize heap hits.
 #define HEAP_MAP_RESERVE    2   // Usually there won't be more than a few heaps in the process, so this should be small.
@@ -787,7 +785,7 @@ static char dbghelp32_assert[sizeof(IMAGEHLP_MODULE64) == 3264 ? 1 : -1];
 VOID VisualLeakDetector::attachToLoadedModules (ModuleSet *newmodules)
 {
     LoaderLock ll;
-    CriticalSectionLocker<DbgHelp> locker(g_DbgHelp);
+    std::scoped_lock<DbgHelp> locker(g_DbgHelp);
 
     // Iterate through the supplied set, until all modules have been attached.
     for (ModuleSet::Iterator newit = newmodules->begin(); newit != newmodules->end(); ++newit)
