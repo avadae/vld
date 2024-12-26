@@ -66,7 +66,7 @@ HANDLE VisualLeakDetector::_GetProcessHeap()
     // Get the process heap.
     HANDLE heap = m_GetProcessHeap();
 
-    vld::cs_lock lock(g_heapMapLock);
+    vld::cs_lock lock(g_vld.g_heapMapLock);
     HeapMap::Iterator heapit = g_vld.m_heapMap->find(heap);
     if (heapit == g_vld.m_heapMap->end())
     {

@@ -52,7 +52,7 @@ extern HANDLE            g_vldHeap;
 HANDLE           g_currentProcess; // Pseudo-handle for the current process.
 HANDLE           g_currentThread;  // Pseudo-handle for the current thread.
 HANDLE           g_processHeap;    // Handle to the process's heap (COM allocations come from here).
-vld::criticalsection  g_heapMapLock;    // Serializes access to the heap and block maps.
+
 ReportHookSet*   g_pReportHooks;
 DbgHelp g_DbgHelp;
 ImageDirectoryEntries g_Ide;

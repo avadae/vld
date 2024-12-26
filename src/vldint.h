@@ -45,6 +45,7 @@
 #include "set.h"        // Provides a custom STL-like set template.
 #include "utility.h"    // Provides miscellaneous utility functions.
 #include "vldallocator.h"   // Provides internal allocator.
+#include "cs.h"
 
 #define MAXMODULELISTLENGTH 512     // Maximum module list length, in characters.
 #define MAXIGNOREFUNCTIONLISTLENGTH 2048     // Maximum module list length, in characters.
@@ -291,6 +292,7 @@ public:
     bool GetModulesList(WCHAR *modules, UINT size);
     int ResolveCallstacks();
     const wchar_t* GetAllocationResolveResults(void* alloc, BOOL showInternalFrames);
+	vld::criticalsection& GetHeapMapLock() { return g_heapMapLock; }
 
     static NTSTATUS __stdcall _LdrLoadDll (LPWSTR searchpath, PULONG flags, unicodestring_t *modulename,
         PHANDLE modulehandle);
@@ -381,6 +383,7 @@ private:
     WCHAR                m_forcedModuleList [MAXMODULELISTLENGTH]; // List of modules to be forcefully included in leak detection.
     WCHAR                m_ignoreFunctionsList [MAXIGNOREFUNCTIONLISTLENGTH]; // List of functions to be ignored in leak detection.
     HeapMap             *m_heapMap;           // Map of all active heaps in the process.
+    vld::criticalsection g_heapMapLock;       // Serializes access to the heap and block maps.
     IMalloc             *m_iMalloc;           // Pointer to the system implementation of IMalloc.
 
     SIZE_T               m_requestCurr;       // Current request number.

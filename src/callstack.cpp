@@ -32,7 +32,6 @@
 // Imported global variables.
 extern HANDLE             g_currentProcess;
 extern HANDLE             g_currentThread;
-extern vld::criticalsection g_heapMapLock;
 extern VisualLeakDetector g_vld;
 extern DbgHelp g_DbgHelp;
 
@@ -819,7 +818,7 @@ VOID SafeCallStack::getStackTrace (UINT32 maxdepth, const context_t& context)
     frame.AddrFrame.Mode      = AddrModeFlat;
     frame.Virtual             = TRUE;
 
-    vld::cs_lock lock(g_heapMapLock);
+    vld::cs_lock lock(g_vld.GetHeapMapLock());
     CriticalSectionLocker<DbgHelp> locker(g_DbgHelp);
 
     // Walk the stack.
