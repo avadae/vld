@@ -27,3 +27,4 @@ src/bin/vld.ini
 .vs/
 packages/
 TestResults/
+build/

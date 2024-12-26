@@ -26,13 +26,11 @@
 #define VLDBUILD     // Declares that we are building Visual Leak Detector.
 #include "ntapi.h"   // Provides access to NT APIs.
 #include "vldheap.h" // Provides access to VLD's internal heap data structures.
-#include "criticalsection.h"
 #undef new           // Do not map "new" to VLD's new operator in this file
 
 // Global variables.
 vldblockheader_t *g_vldBlockList = nullptr; // List of internally allocated blocks on VLD's private heap.
 HANDLE            g_vldHeap;             // VLD's private heap.
-CriticalSection   g_vldHeapLock;         // Serializes access to VLD's private heap.
 bool g_vldHeapActive = false;
 
 // Local helper functions.
@@ -133,6 +131,16 @@ void operator delete [] (void *block, const char *, int)
     vlddelete(block);
 }
 
+// get_heap_mutex - Returns a reference to the mutex used to serialize access to
+//  the VLD's private heap. Wrapping this inside a function ensures that the mutex
+//  is initialized before it is used, but not during static initialization of the   
+//  entire program.
+vld::criticalsection& get_heap_mutex()
+{
+    static vld::criticalsection heap_mutex;
+    return heap_mutex;
+}
+
 // vldnew - Local helper function that actually allocates memory from VLD's
 //   private heap. Prepends a header, which is used for bookkeeping information
 //   that allows VLD to detect and report internal memory leaks, to the returned
@@ -172,7 +180,7 @@ void* vldnew (size_t size, const char *file, int line)
     header->size         = size;
 
     // Link the block into the block list.
-    CriticalSectionLocker<> cs(g_vldHeapLock);
+	std::scoped_lock lock(get_heap_mutex());
     header->next         = g_vldBlockList;
     if (header->next != nullptr) {
         header->next->prev = header;
@@ -201,7 +209,7 @@ void vlddelete (void *block)
     vldblockheader_t *header = VLDBLOCKHEADER((LPVOID)block);
 
     // Unlink the block from the block list.
-    CriticalSectionLocker<> cs(g_vldHeapLock);
+    std::scoped_lock lock(get_heap_mutex());
     if (header->prev) {
         header->prev->next = header->next;
     }
