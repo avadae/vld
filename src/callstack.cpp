@@ -558,6 +558,7 @@ UINT CallStack::isCrtStartupFunction( LPCWSTR functionName ) const
     if (beginWith(functionName, len, L"_malloc_crt")
         || beginWith(functionName, len, L"_calloc_crt")
         || endWith(functionName, len, L"CRT_INIT")
+        // initialization of static variables
         || endWith(functionName, len, L"initterm_e")
         || beginWith(functionName, len, L"_cinit")
         || beginWith(functionName, len, L"std::`dynamic initializer for '")
@@ -580,8 +581,10 @@ UINT CallStack::isCrtStartupFunction( LPCWSTR functionName ) const
         || (wcscmp(functionName, L"_Getctype") == 0)
         || (wcscmp(functionName, L"std::_Facet_Register") == 0)
         || endWith(functionName, len, L">::_Getcat")
-        // Added fixes
+        // initialization of static variables
         || endWith(functionName, len, L"initterm")
+        // initialization of thread_local variables
+        || beginWith(functionName, len, L"__dyn_tls_init")
         ) {
         return CALLSTACK_STATUS_STARTUPCRT;
     }
