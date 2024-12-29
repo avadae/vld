@@ -2936,6 +2936,8 @@ CaptureContext::~CaptureContext() {
         CallStack* callstack = CallStack::Create();
         callstack->getStackTrace(g_vld.m_maxTraceFrames, m_tls->context);
 
+		std::scoped_lock lock(g_vld.g_heapMapLock);
+
         if (m_tls->newBlockWithoutGuard == NULL) {
             g_vld.mapBlock(m_tls->heap,
                 m_tls->blockWithoutGuard,
