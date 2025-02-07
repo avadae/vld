@@ -230,7 +230,7 @@ LPCWSTR CallStack::getFunctionName(SIZE_T programCounter, DWORD64& displacement6
     functionInfo->SizeOfStruct = sizeof(SYMBOL_INFO);
     functionInfo->MaxNameLen = MAX_SYMBOL_NAME_LENGTH;
 
-    // Try to get the name of the function containing this program
+    // Try to get the name of the function containing this program - we have the dbghelp lock + we get the loader lock
     // counter address.
     displacement64 = 0;
     LPCWSTR functionName;
