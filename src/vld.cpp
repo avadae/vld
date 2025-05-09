@@ -1301,8 +1301,7 @@ SIZE_T VisualLeakDetector::eraseDuplicates (const BlockMap::Iterator &element, S
 tls_t* VisualLeakDetector::getTls ()
 {
     // Get the pointer to this thread's thread local storage structure.
-    tls_t* tls = (tls_t*)TlsGetValue(m_tlsIndex);
-    assert(GetLastError() == ERROR_SUCCESS);
+    thread_local tls_t* tls = (tls_t*)TlsGetValue(m_tlsIndex);
 
     if (tls == NULL) {
         DWORD threadId = GetCurrentThreadId();

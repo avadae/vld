@@ -3,6 +3,8 @@
 #include <Windows.h>
 #include <tchar.h>
 #include <assert.h>
+#include <thread>
+#include <memory>
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
@@ -152,6 +154,30 @@ namespace vldunload
             ::FreeLibrary(hModule7);    // vld is unloaded here and reports the memory leak
             int x = VLDGetLeaksCount(); // vld is unloaded and cannot count any memory leaks
             ExpectLeakCount(-1, x);
+        }
+
+#pragma warning (disable: 4858) // discarding return value: This function constructs an object wrapped by a smart pointer and has no other effects; it is not useful to call this function and discard the return value.
+
+        // test taken from https://github.com/Azure/vld/issues/33
+        TEST_METHOD(TestNangua928)
+        {
+            for (int i = 0; i < 0x40; ++i)
+                TlsAlloc();
+
+            HMODULE h_vld = LoadLibrary(sVld_dll);
+            Assert::IsNotNull(h_vld);
+
+            {
+                typedef void(*vld_enable_t)(void);
+                auto vld_enable = (vld_enable_t)::GetProcAddress(h_vld, "VLDGlobalEnable");
+                vld_enable();
+                std::thread([]() {std::make_shared<int>(); }).join();
+            }
+
+            auto leaks = VLDReportLeaks();
+            ExpectLeakCount(0, leaks);
+
+            ::FreeLibrary(h_vld);
         }
     };
 }
