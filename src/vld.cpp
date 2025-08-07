@@ -38,6 +38,9 @@
 #include "loaderlock.h"
 #include "tchar.h"
 
+#include <shlwapi.h>  // For PathFileExistsW
+#pragma comment(lib, "Shlwapi.lib")
+
 #define BLOCK_MAP_RESERVE   64  // This should strike a balance between memory use and a desire to minimize heap hits.
 #define HEAP_MAP_RESERVE    2   // Usually there won't be more than a few heaps in the process, so this should be small.
 #define MODULE_SET_RESERVE  16  // There are likely to be several modules loaded in the process.
@@ -2281,10 +2284,26 @@ NTSTATUS VisualLeakDetector::_LdrLoadDllWin8 (DWORD_PTR reserved, PULONG flags, 
                                           PHANDLE modulehandle)
 {
     if (modulename && modulename->buffer) {
+        int charCount = modulename->length / sizeof(WCHAR);
         // Safely output the module name.
         Report(L"Loading %.*s via LdrLoadDllWin8\n",
-            modulename->length / sizeof(WCHAR), // Length is in bytes, divide by sizeof(WCHAR) to get character count.
+            charCount, // Length is in bytes, divide by sizeof(WCHAR) to get character count.
             modulename->buffer);
+
+        // Copy to stack buffer and null-terminate
+        WCHAR moduleNameBuf[MAX_PATH] = { 0 };
+        if (charCount >= MAX_PATH)
+            charCount = MAX_PATH - 1;
+
+        wcsncpy_s(moduleNameBuf, MAX_PATH, modulename->buffer, charCount);
+
+        // Check if the name contains a backslash (indicates it's a path)
+        if (wcschr(moduleNameBuf, L'\\') != nullptr) {
+            if (!PathFileExistsW(moduleNameBuf)) {
+                Report(L"Skipping DLL load for non-existent file: %s\n", moduleNameBuf);
+                return STATUS_DLL_NOT_FOUND; // Prevent the actual LdrLoadDll call
+            }
+        }
     }
     else {
         Report(L"Loading <unknown module> via LdrLoadDllWin8\n");
@@ -2292,6 +2311,9 @@ NTSTATUS VisualLeakDetector::_LdrLoadDllWin8 (DWORD_PTR reserved, PULONG flags, 
 
     // Load the DLL
     NTSTATUS status = LdrLoadDllWin8(reserved, flags, modulename, modulehandle);
+
+    Report(L"LdrLoadDllWin8 returned NTSTATUS: 0x%08X\n", status);
+
     return status;
 }
 
@@ -2372,24 +2394,11 @@ bool VisualLeakDetector::isFunctionIgnored(LPCWSTR functionName)
     return g_vld.m_ignoreFunctions->find(functioninfo) != g_vld.m_ignoreFunctions->end();
 }
 
-void PreloadSymsrvDll() {
-    HMODULE hSymsrv = LoadLibrary(L"symsrv.dll");
-    if (hSymsrv == NULL) {
-        DWORD error = GetLastError();
-        Report(L"Failed to load symsrv.dll. Error code: %lu\n", error);
-    }
-}
-
 SIZE_T VisualLeakDetector::GetLeaksCount() {
     if (m_options & VLD_OPT_VLDOFF) {
         // VLD has been turned off.
         return 0;
     }
-
-    // preloading symsrv.dll here avoids that it needs to be loaded while holding the g_heapMapLock
-    // loading a dll activates the loader lock, we don't want that while holding another lock.
-    // getLeaksCount loads that symsrv.dll when retrieving function names.
-    PreloadSymsrvDll();
 
     SIZE_T leaksCount = 0;
     // Generate a memory leak report for each heap in the process.
@@ -2408,8 +2417,6 @@ SIZE_T VisualLeakDetector::GetThreadLeaksCount(DWORD threadId)
         return 0;
     }
 
-    PreloadSymsrvDll();
-
     SIZE_T leaksCount = 0;
     // Generate a memory leak report for each heap in the process.
     std::scoped_lock lock(g_heapMapLock);
@@ -2426,8 +2433,6 @@ SIZE_T VisualLeakDetector::ReportLeaks( )
         // VLD has been turned off.
         return 0;
     }
-
-    PreloadSymsrvDll();
 
     // Generate a memory leak report for each heap in the process.
     SIZE_T leaksCount = 0;
@@ -2449,8 +2454,6 @@ SIZE_T VisualLeakDetector::ReportThreadLeaks( DWORD threadId )
         // VLD has been turned off.
         return 0;
     }
-
-    PreloadSymsrvDll();
 
     // Generate a memory leak report for each heap in the process.
     SIZE_T leaksCount = 0;
