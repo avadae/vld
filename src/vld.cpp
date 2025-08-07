@@ -87,8 +87,6 @@ moduleentry_t ntdllPatch [] = {
 typedef BOOLEAN(NTAPI *PDLL_INIT_ROUTINE)(IN PVOID DllHandle, IN ULONG Reason, IN PCONTEXT Context OPTIONAL);
 BOOLEAN WINAPI LdrpCallInitRoutine(IN PVOID BaseAddress, IN ULONG Reason, IN PVOID Context, IN PDLL_INIT_ROUTINE EntryPoint)
 {
-    LoaderLock ll;
-
     if (Reason == DLL_PROCESS_ATTACH) {
         if (!g_DbgHelp.IsLockedByCurrentThread())
             g_vld.RefreshModules();
@@ -481,7 +479,7 @@ VisualLeakDetector::VisualLeakDetector ()
     */
     g_DbgHelp.SymSetOptions(SYMOPT_DEBUG | SYMOPT_UNDNAME | SYMOPT_DEFERRED_LOADS | SYMOPT_LOAD_LINES);
 #else
-    g_DbgHelp.SymSetOptions(SYMOPT_UNDNAME | SYMOPT_LOAD_LINES);
+    g_DbgHelp.SymSetOptions(SYMOPT_UNDNAME | SYMOPT_LOAD_LINES | SYMOPT_DEFERRED_LOADS);
 #endif
     DbgTrace(L"dbghelp32.dll %i: SymInitializeW\n", GetCurrentThreadId());
     if (!g_DbgHelp.SymInitializeW(g_currentProcess, symbolpath, FALSE)) {
@@ -2289,15 +2287,11 @@ NTSTATUS VisualLeakDetector::_LdrLoadDllWin8 (DWORD_PTR reserved, PULONG flags, 
 
 NTSTATUS VisualLeakDetector::_LdrGetDllHandle(IN PWSTR DllPath OPTIONAL, IN PULONG DllCharacteristics OPTIONAL, IN PUNICODE_STRING DllName, OUT PVOID *DllHandle OPTIONAL)
 {
-    LoaderLock ll;
-
     NTSTATUS status = LdrGetDllHandle(DllPath, DllCharacteristics, DllName, DllHandle);
     return status;
 }
 NTSTATUS VisualLeakDetector::_LdrGetProcedureAddress(IN PVOID BaseAddress, IN PANSI_STRING Name, IN ULONG Ordinal, OUT PVOID * ProcedureAddress)
 {
-    LoaderLock ll;
-
     NTSTATUS status = LdrGetProcedureAddress(BaseAddress, Name, Ordinal, ProcedureAddress);
     return status;
 }
@@ -2319,14 +2313,13 @@ NTSTATUS VisualLeakDetector::_LdrUnloadDll(IN PVOID BaseAddress)
 
 VOID VisualLeakDetector::RefreshModules()
 {
-    LoaderLock ll;
-
     if (m_options & VLD_OPT_VLDOFF)
         return;
 
     ModuleSet* newmodules = new ModuleSet();
     newmodules->reserve(MODULE_SET_RESERVE);
     {
+        LoaderLock ll;
         // Duplicate code here in this method. Consider refactoring out to another method.
         // Create a new set of all loaded modules, including any newly loaded
         // modules.
@@ -2369,11 +2362,24 @@ bool VisualLeakDetector::isFunctionIgnored(LPCWSTR functionName)
     return g_vld.m_ignoreFunctions->find(functioninfo) != g_vld.m_ignoreFunctions->end();
 }
 
+void PreloadSymsrvDll() {
+    HMODULE hSymsrv = LoadLibrary(L"symsrv.dll");
+    if (hSymsrv == NULL) {
+        DWORD error = GetLastError();
+        Report(L"Failed to load symsrv.dll. Error code: %lu\n", error);
+    }
+}
+
 SIZE_T VisualLeakDetector::GetLeaksCount() {
     if (m_options & VLD_OPT_VLDOFF) {
         // VLD has been turned off.
         return 0;
     }
+
+    // preloading symsrv.dll here avoids that it needs to be loaded while holding the g_heapMapLock
+    // loading a dll activates the loader lock, we don't want that while holding another lock.
+    // getLeaksCount loads that symsrv.dll when retrieving function names.
+    PreloadSymsrvDll();
 
     SIZE_T leaksCount = 0;
     // Generate a memory leak report for each heap in the process.
@@ -2385,13 +2391,14 @@ SIZE_T VisualLeakDetector::GetLeaksCount() {
     return leaksCount;
 }
 
-
 SIZE_T VisualLeakDetector::GetThreadLeaksCount(DWORD threadId)
 {
     if (m_options & VLD_OPT_VLDOFF) {
         // VLD has been turned off.
         return 0;
     }
+
+    PreloadSymsrvDll();
 
     SIZE_T leaksCount = 0;
     // Generate a memory leak report for each heap in the process.
@@ -2409,6 +2416,8 @@ SIZE_T VisualLeakDetector::ReportLeaks( )
         // VLD has been turned off.
         return 0;
     }
+
+    PreloadSymsrvDll();
 
     // Generate a memory leak report for each heap in the process.
     SIZE_T leaksCount = 0;
@@ -2431,6 +2440,8 @@ SIZE_T VisualLeakDetector::ReportThreadLeaks( DWORD threadId )
         return 0;
     }
 
+    PreloadSymsrvDll();
+
     // Generate a memory leak report for each heap in the process.
     SIZE_T leaksCount = 0;
     std::scoped_lock lock(g_heapMapLock);
@@ -2452,11 +2463,8 @@ VOID VisualLeakDetector::MarkAllLeaksAsReported( )
         return;
     }
 
-    // Generate a memory leak report for each heap in the process.
     std::scoped_lock lock(g_heapMapLock);
     for (HeapMap::Iterator heapit = m_heapMap->begin(); heapit != m_heapMap->end(); ++heapit) {
-        HANDLE heap = (*heapit).first;
-        UNREFERENCED_PARAMETER(heap);
         heapinfo_t* heapinfo = (*heapit).second;
         markAllLeaksAsReported(heapinfo);
     }
@@ -2469,11 +2477,8 @@ VOID VisualLeakDetector::MarkThreadLeaksAsReported( DWORD threadId )
         return;
     }
 
-    // Generate a memory leak report for each heap in the process.
     std::scoped_lock lock(g_heapMapLock);
     for (HeapMap::Iterator heapit = m_heapMap->begin(); heapit != m_heapMap->end(); ++heapit) {
-        HANDLE heap = (*heapit).first;
-        UNREFERENCED_PARAMETER(heap);
         heapinfo_t* heapinfo = (*heapit).second;
         markAllLeaksAsReported(heapinfo, threadId);
     }
