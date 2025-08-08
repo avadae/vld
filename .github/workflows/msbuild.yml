@@ -4,9 +4,12 @@ on:
   push:
     branches: [ "dev", "master" ]
     tags: '*'
+    paths-ignore:
+      - '**/README.md'
+      - '.github/workflows/*'
   pull_request:
     branches: [ "master" ]
-    
+  
 env:
   # Path to the solution file relative to the root of the project.
   SOLUTION_FILE_PATH: ./vld.sln
