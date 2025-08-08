@@ -2366,7 +2366,7 @@ void PreloadSymsrvDll() {
     HMODULE hExisting = GetModuleHandleW(L"symsrv.dll");
     if (hExisting == NULL) {
 		VLDDisable();
-        HMODULE hSymsrv = LoadLibrary(L"symsrv.dll");
+        HMODULE hSymsrv = LoadLibraryW(L"symsrv.dll");
         if (hSymsrv == NULL) {
             DWORD error = GetLastError();
             Report(L"Failed to load symsrv.dll. Error code: %lu\n", error);
