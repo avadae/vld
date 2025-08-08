@@ -46,8 +46,10 @@ Name: "{group}\View Documentation"; Filename: "http://vld.codeplex.com/documenta
 
 [Files]
 Source: "dbghelp\x64\dbghelp.dll"; DestDir: "{app}\bin\Win64"; Flags: ignoreversion
+Source: "dbghelp\x64\symsrv.dll"; DestDir: "{app}\bin\Win64"; Flags: ignoreversion
 Source: "dbghelp\x64\Microsoft.DTfW.DHL.manifest"; DestDir: "{app}\bin\Win64"; Flags: ignoreversion
 Source: "dbghelp\x86\dbghelp.dll"; DestDir: "{app}\bin\Win32"; Flags: ignoreversion
+Source: "dbghelp\x86\symsrv.dll"; DestDir: "{app}\bin\Win32"; Flags: ignoreversion
 Source: "dbghelp\x86\Microsoft.DTfW.DHL.manifest"; DestDir: "{app}\bin\Win32"; Flags: ignoreversion
 Source: "..\bin\Win32\{#ConfigType}\vld.lib"; DestDir: "{app}\lib\Win32"; Flags: ignoreversion
 Source: "..\bin\Win32\{#ConfigType}\vld_x86.dll"; DestDir: "{app}\bin\Win32"; Flags: ignoreversion

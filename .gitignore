@@ -28,3 +28,5 @@ src/bin/vld.ini
 packages/
 TestResults/
 build/
+
+!setup/dbghelp/x64/

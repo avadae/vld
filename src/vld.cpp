@@ -2283,37 +2283,7 @@ NTSTATUS VisualLeakDetector::_LdrLoadDll (LPWSTR searchpath, PULONG flags, unico
 NTSTATUS VisualLeakDetector::_LdrLoadDllWin8 (DWORD_PTR reserved, PULONG flags, unicodestring_t *modulename,
                                           PHANDLE modulehandle)
 {
-    if (modulename && modulename->buffer) {
-        int charCount = modulename->length / sizeof(WCHAR);
-        // Safely output the module name.
-        Report(L"Loading %.*s via LdrLoadDllWin8\n",
-            charCount, // Length is in bytes, divide by sizeof(WCHAR) to get character count.
-            modulename->buffer);
-
-        // Copy to stack buffer and null-terminate
-        WCHAR moduleNameBuf[MAX_PATH] = { 0 };
-        if (charCount >= MAX_PATH)
-            charCount = MAX_PATH - 1;
-
-        wcsncpy_s(moduleNameBuf, MAX_PATH, modulename->buffer, charCount);
-
-        // Check if the name contains a backslash (indicates it's a path)
-        if (wcschr(moduleNameBuf, L'\\') != nullptr) {
-            if (!PathFileExistsW(moduleNameBuf)) {
-                Report(L"Skipping DLL load for non-existent file: %s\n", moduleNameBuf);
-                return STATUS_DLL_NOT_FOUND; // Prevent the actual LdrLoadDll call
-            }
-        }
-    }
-    else {
-        Report(L"Loading <unknown module> via LdrLoadDllWin8\n");
-    }
-
-    // Load the DLL
     NTSTATUS status = LdrLoadDllWin8(reserved, flags, modulename, modulehandle);
-
-    Report(L"LdrLoadDllWin8 returned NTSTATUS: 0x%08X\n", status);
-
     return status;
 }
 
@@ -2394,11 +2364,27 @@ bool VisualLeakDetector::isFunctionIgnored(LPCWSTR functionName)
     return g_vld.m_ignoreFunctions->find(functioninfo) != g_vld.m_ignoreFunctions->end();
 }
 
+void PreloadSymsrvDll() {
+
+    HMODULE hExisting = GetModuleHandleW(L"symsrv.dll");
+    if (hExisting == NULL) {
+		VLDDisable();
+        HMODULE hSymsrv = LoadLibrary(L"symsrv.dll");
+        if (hSymsrv == NULL) {
+            DWORD error = GetLastError();
+            Report(L"Failed to load symsrv.dll. Error code: %lu\n", error);
+        }
+		VLDEnable();
+    }
+}
+
 SIZE_T VisualLeakDetector::GetLeaksCount() {
     if (m_options & VLD_OPT_VLDOFF) {
         // VLD has been turned off.
         return 0;
     }
+
+	PreloadSymsrvDll();
 
     SIZE_T leaksCount = 0;
     // Generate a memory leak report for each heap in the process.
@@ -2417,6 +2403,8 @@ SIZE_T VisualLeakDetector::GetThreadLeaksCount(DWORD threadId)
         return 0;
     }
 
+    PreloadSymsrvDll();
+
     SIZE_T leaksCount = 0;
     // Generate a memory leak report for each heap in the process.
     std::scoped_lock lock(g_heapMapLock);
@@ -2433,6 +2421,8 @@ SIZE_T VisualLeakDetector::ReportLeaks( )
         // VLD has been turned off.
         return 0;
     }
+
+    PreloadSymsrvDll();
 
     // Generate a memory leak report for each heap in the process.
     SIZE_T leaksCount = 0;
@@ -2454,6 +2444,8 @@ SIZE_T VisualLeakDetector::ReportThreadLeaks( DWORD threadId )
         // VLD has been turned off.
         return 0;
     }
+
+    PreloadSymsrvDll();
 
     // Generate a memory leak report for each heap in the process.
     SIZE_T leaksCount = 0;

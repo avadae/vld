@@ -61,8 +61,7 @@ int Test()
     // _tmain exits but before VLDReportLeaks() is called internally by VLD and
     // therefore correctly report 8 leaks.
 
-    int leaks = VLDGetLeaksCount();
-    VLDReportLeaks(); // at this point should report 9 leaks;
+    int leaks = VLDReportLeaks(); // at this point should report 9 leaks;
     return leaks;
 }
 
