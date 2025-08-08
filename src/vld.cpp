@@ -38,9 +38,6 @@
 #include "loaderlock.h"
 #include "tchar.h"
 
-#include <shlwapi.h>  // For PathFileExistsW
-#pragma comment(lib, "Shlwapi.lib")
-
 #define BLOCK_MAP_RESERVE   64  // This should strike a balance between memory use and a desire to minimize heap hits.
 #define HEAP_MAP_RESERVE    2   // Usually there won't be more than a few heaps in the process, so this should be small.
 #define MODULE_SET_RESERVE  16  // There are likely to be several modules loaded in the process.
